@@ -116,18 +116,127 @@
   
   .subtitle .key { color: var(--accent); }
   
-  .upload-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
+  /* Mode selector */
+  .mode-section {
     margin-bottom: 40px;
   }
   
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .section-label .num {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  
+  .section-label .line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  
+  .mode-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  
+  @media (max-width: 768px) { .mode-grid { grid-template-columns: 1fr; } }
+  
+  .mode-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 24px 28px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .mode-card:hover {
+    border-color: var(--text-dim);
+    background: var(--surface-2);
+  }
+  
+  .mode-card.active {
+    border-color: var(--accent);
+    background: linear-gradient(135deg, var(--surface), var(--surface-2));
+  }
+  
+  .mode-icon {
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    color: var(--text-dim);
+    transition: all 0.2s ease;
+  }
+  
+  .mode-card.active .mode-icon {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--bg);
+  }
+  
+  .mode-text {
+    flex: 1;
+  }
+  
+  .mode-title {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+  
+  .mode-card.active .mode-title {
+    color: var(--accent);
+  }
+  
+  .mode-desc {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    line-height: 1.5;
+  }
+  
+  /* Upload */
+  .upload-section {
+    margin-bottom: 40px;
+  }
+  
+  .upload-grid {
+    display: grid;
+    gap: 24px;
+  }
+  
+  .upload-grid.two-files {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .upload-grid.one-file {
+    grid-template-columns: 1fr;
+    max-width: 700px;
+  }
+  
   @media (max-width: 768px) {
-    .upload-grid { grid-template-columns: 1fr; }
-    .header { flex-direction: column; align-items: flex-start; gap: 30px; }
-    .subtitle { text-align: left; }
-    .container { padding: 40px 20px; }
+    .upload-grid.two-files { grid-template-columns: 1fr; }
   }
   
   .upload-zone {
@@ -137,7 +246,7 @@
     position: relative;
     cursor: pointer;
     transition: all 0.3s ease;
-    min-height: 240px;
+    min-height: 200px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -176,16 +285,16 @@
   }
   
   .upload-text {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 300;
     font-style: italic;
     line-height: 1.2;
   }
   
   .upload-text .accent { color: var(--accent); font-style: normal; font-weight: 500; }
-  .file-info { display: none; }
+  .file-info { display: none; width: 100%; }
   .has-file .upload-text { display: none; }
-  .has-file .file-info { display: block; width: 100%; }
+  .has-file .file-info { display: block; }
   
   .file-name {
     font-family: 'JetBrains Mono', monospace;
@@ -213,6 +322,165 @@
   
   input[type="file"] { display: none; }
   
+  /* Sheet selectors (single-file mode) */
+  .sheet-selectors {
+    display: none;
+    margin-top: 20px;
+    padding: 24px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+  }
+  
+  .sheet-selectors.active { display: block; }
+  
+  .sheet-selectors-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  
+  .sheet-pickers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  
+  @media (max-width: 768px) { .sheet-pickers { grid-template-columns: 1fr; } }
+  
+  .sheet-picker label {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  
+  .sheet-picker select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+  }
+  
+  .sheet-picker select:hover, .sheet-picker select:focus {
+    border-color: var(--accent);
+    outline: none;
+  }
+  
+  /* Context prompt */
+  .context-section {
+    margin-bottom: 40px;
+  }
+  
+  .context-toggle {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 12px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .context-toggle:hover {
+    color: var(--text);
+    border-color: var(--text-dim);
+  }
+  
+  .context-toggle .chevron {
+    transition: transform 0.2s ease;
+    color: var(--accent);
+  }
+  
+  .context-toggle.expanded .chevron {
+    transform: rotate(90deg);
+  }
+  
+  .context-panel {
+    display: none;
+    margin-top: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 30px;
+  }
+  
+  .context-panel.active { display: block; }
+  
+  .context-hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+  
+  .context-hint .key { color: var(--accent); }
+  
+  textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 16px 20px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 15px;
+    line-height: 1.6;
+    resize: vertical;
+    min-height: 100px;
+    transition: border-color 0.2s ease;
+  }
+  
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  
+  textarea::placeholder {
+    color: var(--text-muted);
+    font-style: italic;
+  }
+  
+  .preset-prompts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  
+  .preset-chip {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 6px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .preset-chip:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  
+  /* Action bar */
   .action-bar {
     display: flex;
     justify-content: flex-end;
@@ -268,6 +536,7 @@
   
   .btn-reset:hover { color: var(--text); border-color: var(--text-dim); }
   
+  /* Status panel */
   .status-panel {
     display: none;
     background: var(--surface);
@@ -310,9 +579,40 @@
     to { opacity: 1; transform: translateX(0); }
   }
   
+  /* Results - completely redesigned */
   .results { display: none; }
   .results.active { display: block; }
   
+  /* Results header */
+  .results-header {
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .results-header h2 {
+    font-size: 48px;
+    font-weight: 300;
+    font-style: italic;
+    letter-spacing: -0.03em;
+    margin-bottom: 8px;
+  }
+  
+  .results-header h2 .em {
+    font-style: normal;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  
+  .results-header .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  
+  /* Hero metric */
   .hero-metric {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -394,6 +694,73 @@
   .hero-metric.warning .hero-verdict .highlight { color: var(--warning); }
   .hero-metric.error .hero-verdict .highlight { color: var(--error); }
   
+  /* Tabs for results breakdown */
+  .results-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 0;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  
+  .results-tab {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    padding: 14px 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .results-tab:hover {
+    color: var(--text);
+  }
+  
+  .results-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  
+  .results-tab .badge {
+    font-size: 10px;
+    background: var(--surface);
+    color: var(--text-muted);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+  
+  .results-tab.active .badge {
+    background: var(--accent);
+    color: var(--bg);
+  }
+  
+  .results-tab.matching.active .badge { background: var(--success); }
+  .results-tab.s1-only.active .badge { background: var(--accent-warm); }
+  .results-tab.s2-only.active .badge { background: var(--warning); }
+  
+  .tab-content {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: none;
+    padding: 40px;
+    margin-bottom: 32px;
+    min-height: 300px;
+  }
+  
+  .tab-content.active { display: block; }
+  
+  /* Overview tab */
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -433,11 +800,75 @@
   .stat-card.s1-only .stat-value { color: var(--accent-warm); }
   .stat-card.s2-only .stat-value { color: var(--warning); }
   
-  .process-section {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 40px;
+  /* Visual breakdown bar */
+  .breakdown-bar-section {
     margin-bottom: 32px;
+  }
+  
+  .breakdown-bar {
+    display: flex;
+    height: 60px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  
+  .breakdown-segment {
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+    min-width: 0;
+  }
+  
+  .breakdown-segment.matching { background: var(--success); }
+  .breakdown-segment.s1-only { background: var(--accent-warm); }
+  .breakdown-segment.s2-only { background: var(--warning); }
+  
+  .breakdown-segment .seg-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--bg);
+    font-weight: 600;
+    padding: 0 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .breakdown-legend {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  
+  .breakdown-legend .item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .breakdown-legend .swatch {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+  }
+  
+  .breakdown-legend .swatch.matching { background: var(--success); }
+  .breakdown-legend .swatch.s1-only { background: var(--accent-warm); }
+  .breakdown-legend .swatch.s2-only { background: var(--warning); }
+  
+  /* Process list */
+  .process-section {
+    margin-top: 32px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
   }
   
   .process-title {
@@ -447,8 +878,6 @@
     letter-spacing: 0.2em;
     text-transform: uppercase;
     margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--border);
   }
   
   .process-list { list-style: none; counter-reset: step; }
@@ -480,65 +909,129 @@
     font-size: 13px;
   }
   
-  .mismatch-section {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 40px;
-    margin-bottom: 32px;
+  /* Insight panel */
+  .insight-panel {
+    background: linear-gradient(135deg, var(--surface-2), var(--bg));
+    border: 1px solid var(--border-bright);
+    padding: 30px 40px;
+    margin-top: 32px;
+    position: relative;
   }
   
-  .mismatch-section.hidden { display: none; }
+  .insight-panel::before {
+    content: 'INSIGHT';
+    position: absolute;
+    top: -10px;
+    left: 30px;
+    background: var(--surface);
+    padding: 0 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+  }
   
-  .mismatch-title {
+  .insight-panel p { font-size: 16px; line-height: 1.7; color: var(--text); }
+  .insight-panel p + p { margin-top: 12px; }
+  
+  .insight-panel code {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-size: 13px;
+    color: var(--accent);
+  }
+  
+  /* Sample table */
+  .sample-section {
+    display: block;
+  }
+  
+  .sample-section-header {
+    margin-bottom: 24px;
+  }
+  
+  .sample-section-title {
     font-size: 24px;
     font-weight: 400;
     font-style: italic;
     margin-bottom: 8px;
   }
   
-  .mismatch-subtitle {
+  .sample-section-meta {
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
     color: var(--text-dim);
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    margin-bottom: 30px;
   }
   
-  .mismatch-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-  }
-  
-  @media (max-width: 768px) { .mismatch-grid { grid-template-columns: 1fr; } }
-  
-  .mismatch-col h4 {
+  .sample-table {
+    width: 100%;
+    border-collapse: collapse;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
+    font-size: 12px;
+  }
+  
+  .sample-table th {
+    text-align: left;
+    padding: 12px 16px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    font-size: 10px;
     color: var(--text-dim);
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    margin-bottom: 16px;
-    padding-bottom: 8px;
+    font-weight: 500;
+  }
+  
+  .sample-table td {
+    padding: 14px 16px;
     border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
   }
   
-  .mismatch-col.s1 h4 { color: var(--accent-warm); }
-  .mismatch-col.s2 h4 { color: var(--warning); }
+  .sample-table tr:hover td {
+    background: var(--surface-2);
+  }
   
-  .sample-list {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
+  .sample-table .student-cell {
+    font-weight: 500;
+    max-width: 280px;
+    word-break: break-word;
+  }
+  
+  .sample-table .group-cell {
     color: var(--text-dim);
-    line-height: 1.8;
+    font-size: 11px;
   }
   
-  .sample-list .row { padding: 8px 0; border-bottom: 1px solid var(--border); }
-  .sample-list .row:last-child { border-bottom: none; }
-  .sample-list .name { color: var(--text); display: block; }
-  .sample-list .meta { font-size: 10px; color: var(--text-muted); }
+  .sample-table .exam-cell {
+    color: var(--text-muted);
+    font-size: 11px;
+    max-width: 200px;
+  }
   
+  .sample-table .empty-row td {
+    color: var(--text-muted);
+    text-align: center;
+    padding: 40px;
+    font-style: italic;
+  }
+  
+  .sample-footer {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    text-align: right;
+  }
+  
+  /* Footer */
   .footer {
     margin-top: 80px;
     padding-top: 30px;
@@ -567,39 +1060,6 @@
   
   @keyframes spin { to { transform: rotate(360deg); } }
   
-  .insight-panel {
-    background: linear-gradient(135deg, var(--surface), var(--surface-2));
-    border: 1px solid var(--border-bright);
-    padding: 30px 40px;
-    margin-bottom: 32px;
-    position: relative;
-  }
-  
-  .insight-panel::before {
-    content: 'INSIGHT';
-    position: absolute;
-    top: -10px;
-    left: 30px;
-    background: var(--bg);
-    padding: 0 12px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--accent);
-    letter-spacing: 0.2em;
-  }
-  
-  .insight-panel p { font-size: 16px; line-height: 1.7; color: var(--text); }
-  .insight-panel p + p { margin-top: 12px; }
-  
-  .insight-panel code {
-    font-family: 'JetBrains Mono', monospace;
-    background: var(--bg);
-    padding: 2px 8px;
-    border-radius: 2px;
-    font-size: 13px;
-    color: var(--accent);
-  }
-  
   .error-banner {
     background: rgba(248, 113, 113, 0.1);
     border: 1px solid var(--error);
@@ -612,6 +1072,11 @@
   }
   
   .error-banner.active { display: block; }
+  
+  /* Hidden by default - mode-specific */
+  .mode-single .upload-grid-2 { display: none !important; }
+  .mode-double .upload-grid-1 { display: none !important; }
+  .mode-double .sheet-selectors { display: none !important; }
 </style>
 </head>
 <body>
@@ -620,47 +1085,139 @@
   
   <header class="header">
     <div>
-      <div class="brand"><span class="dot"></span>Reconciliation Agent / v2.0</div>
-      <h1>Cross-check, <span class="em">two ways.</span></h1>
+      <div class="brand"><span class="dot"></span>Reconciliation Agent / v3.0</div>
+      <h1>Cross-check, <span class="em">your way.</span></h1>
     </div>
     <div class="subtitle">
-      <div><span class="key">→</span> Upload two Excel files</div>
+      <div><span class="key">→</span> Compare two files OR two sheets in one file</div>
       <div><span class="key">→</span> Mojibake repair, accent normalization</div>
       <div><span class="key">→</span> Wide ↔ long format detection</div>
-      <div><span class="key">→</span> Match rate analysis</div>
+      <div><span class="key">→</span> Detailed match breakdown</div>
     </div>
   </header>
   
-  <div class="upload-grid">
-    <label class="upload-zone" id="zone1">
-      <div class="upload-number">FILE_01</div>
-      <div class="upload-label">First Dataset</div>
-      <div class="upload-content">
-        <div class="upload-text">drop a <span class="accent">.xlsx</span> file<br>or click to browse</div>
-        <div class="file-info">
-          <div class="file-name" id="file1Name"></div>
-          <div class="file-meta" id="file1Meta"></div>
+  <!-- Mode selector -->
+  <div class="mode-section">
+    <div class="section-label">
+      <span class="num">01</span>
+      <span>Choose Comparison Mode</span>
+      <span class="line"></span>
+    </div>
+    <div class="mode-grid">
+      <div class="mode-card active" id="modeDouble" data-mode="double">
+        <div class="mode-icon">⊞⊞</div>
+        <div class="mode-text">
+          <div class="mode-title">Two Files</div>
+          <div class="mode-desc">Compare data across two separate Excel files</div>
         </div>
       </div>
-      <div class="upload-hint">↳ accepts .xlsx</div>
-      <input type="file" id="file1" accept=".xlsx,.xls">
-    </label>
-    
-    <label class="upload-zone" id="zone2">
-      <div class="upload-number">FILE_02</div>
-      <div class="upload-label">Second Dataset</div>
-      <div class="upload-content">
-        <div class="upload-text">drop a <span class="accent">.xlsx</span> file<br>or click to browse</div>
-        <div class="file-info">
-          <div class="file-name" id="file2Name"></div>
-          <div class="file-meta" id="file2Meta"></div>
+      <div class="mode-card" id="modeSingle" data-mode="single">
+        <div class="mode-icon">⊞</div>
+        <div class="mode-text">
+          <div class="mode-title">One File, Two Sheets</div>
+          <div class="mode-desc">Compare two sheets within the same Excel file</div>
         </div>
       </div>
-      <div class="upload-hint">↳ accepts .xlsx</div>
-      <input type="file" id="file2" accept=".xlsx,.xls">
-    </label>
+    </div>
   </div>
   
+  <!-- Upload section -->
+  <div class="upload-section" id="uploadSection">
+    <div class="section-label">
+      <span class="num">02</span>
+      <span id="uploadSectionLabel">Upload Files</span>
+      <span class="line"></span>
+    </div>
+    
+    <!-- Two files mode -->
+    <div class="upload-grid two-files upload-grid-2">
+      <label class="upload-zone" id="zone1">
+        <div class="upload-number">FILE_01</div>
+        <div class="upload-label">First Dataset</div>
+        <div class="upload-content">
+          <div class="upload-text">drop a <span class="accent">.xlsx</span> file<br>or click to browse</div>
+          <div class="file-info">
+            <div class="file-name" id="file1Name"></div>
+            <div class="file-meta" id="file1Meta"></div>
+          </div>
+        </div>
+        <div class="upload-hint">↳ accepts .xlsx</div>
+        <input type="file" id="file1" accept=".xlsx,.xls">
+      </label>
+      
+      <label class="upload-zone" id="zone2">
+        <div class="upload-number">FILE_02</div>
+        <div class="upload-label">Second Dataset</div>
+        <div class="upload-content">
+          <div class="upload-text">drop a <span class="accent">.xlsx</span> file<br>or click to browse</div>
+          <div class="file-info">
+            <div class="file-name" id="file2Name"></div>
+            <div class="file-meta" id="file2Meta"></div>
+          </div>
+        </div>
+        <div class="upload-hint">↳ accepts .xlsx</div>
+        <input type="file" id="file2" accept=".xlsx,.xls">
+      </label>
+    </div>
+    
+    <!-- Single file mode -->
+    <div class="upload-grid one-file upload-grid-1">
+      <label class="upload-zone" id="zoneSingle">
+        <div class="upload-number">FILE</div>
+        <div class="upload-label">Excel File with Multiple Sheets</div>
+        <div class="upload-content">
+          <div class="upload-text">drop an <span class="accent">.xlsx</span> file with two sheets<br>or click to browse</div>
+          <div class="file-info">
+            <div class="file-name" id="singleFileName"></div>
+            <div class="file-meta" id="singleFileMeta"></div>
+          </div>
+        </div>
+        <div class="upload-hint">↳ accepts .xlsx</div>
+        <input type="file" id="fileSingle" accept=".xlsx,.xls">
+      </label>
+      
+      <div class="sheet-selectors" id="sheetSelectors">
+        <div class="sheet-selectors-title">Pick the two sheets to compare</div>
+        <div class="sheet-pickers">
+          <div class="sheet-picker">
+            <label>Sheet A</label>
+            <select id="sheetSelectA"></select>
+          </div>
+          <div class="sheet-picker">
+            <label>Sheet B</label>
+            <select id="sheetSelectB"></select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Context prompt -->
+  <div class="context-section">
+    <div class="section-label">
+      <span class="num">03</span>
+      <span>Optional Context</span>
+      <span class="line"></span>
+    </div>
+    <button class="context-toggle" id="contextToggle">
+      <span class="chevron">›</span>
+      <span>Add context or instructions</span>
+    </button>
+    <div class="context-panel" id="contextPanel">
+      <div class="context-hint">
+        <span class="key">↳</span> Tell the agent anything special about your data — known issues, what to look for, what to ignore. The agent uses this to tune its analysis and frame the insight commentary.
+      </div>
+      <textarea id="contextPrompt" placeholder="e.g., 'Sheet 1 contains all programs (MIR, FIR, EIR), Sheet 2 only has MIR data — filter accordingly' or 'Group names may have trailing spaces' or 'Treat student names as case-insensitive but preserve accents'"></textarea>
+      <div class="preset-prompts">
+        <button class="preset-chip" data-preset="programs">Filter to one program</button>
+        <button class="preset-chip" data-preset="trailing">Trailing whitespace</button>
+        <button class="preset-chip" data-preset="duplicates">Allow duplicates</button>
+        <button class="preset-chip" data-preset="strict">Strict accent matching</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Action bar -->
   <div class="action-bar">
     <button class="btn-reset" id="resetBtn" style="display:none;">Reset</button>
     <button class="btn-primary" id="runBtn" disabled>
@@ -671,11 +1228,18 @@
   
   <div class="error-banner" id="errorBanner"></div>
   
+  <!-- Status panel -->
   <div class="status-panel" id="statusPanel">
     <div id="statusLines"></div>
   </div>
   
+  <!-- Results -->
   <div class="results" id="results">
+    
+    <div class="results-header">
+      <h2>Analysis <span class="em">complete.</span></h2>
+      <div class="meta" id="resultsMeta"></div>
+    </div>
     
     <div class="hero-metric" id="heroMetric">
       <div class="hero-grid">
@@ -690,52 +1254,137 @@
       </div>
     </div>
     
-    <div class="stats-grid">
-      <div class="stat-card matching">
-        <div class="stat-label">Matching</div>
-        <div class="stat-value" id="statMatching">—</div>
-        <div class="stat-sublabel">rows in both</div>
-      </div>
-      <div class="stat-card s1-only">
-        <div class="stat-label">File 01 Only</div>
-        <div class="stat-value" id="statS1Only">—</div>
-        <div class="stat-sublabel">unique rows</div>
-      </div>
-      <div class="stat-card s2-only">
-        <div class="stat-label">File 02 Only</div>
-        <div class="stat-value" id="statS2Only">—</div>
-        <div class="stat-sublabel">unique rows</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Total Rows</div>
-        <div class="stat-value" id="statTotal">—</div>
-        <div class="stat-sublabel">analyzed</div>
-      </div>
+    <!-- Tabs -->
+    <div class="results-tabs">
+      <button class="results-tab active" data-tab="overview">
+        <span>Overview</span>
+      </button>
+      <button class="results-tab matching" data-tab="matching">
+        <span>What Matched</span>
+        <span class="badge" id="badgeMatching">0</span>
+      </button>
+      <button class="results-tab s1-only" data-tab="s1-only">
+        <span id="tabS1Label">In A Only</span>
+        <span class="badge" id="badgeS1">0</span>
+      </button>
+      <button class="results-tab s2-only" data-tab="s2-only">
+        <span id="tabS2Label">In B Only</span>
+        <span class="badge" id="badgeS2">0</span>
+      </button>
     </div>
     
-    <div class="insight-panel" id="insightPanel" style="display:none;">
-      <p id="insightText"></p>
-    </div>
-    
-    <div class="process-section">
-      <div class="process-title">Reconciliation Process</div>
-      <ul class="process-list" id="processList"></ul>
-    </div>
-    
-    <div class="mismatch-section hidden" id="mismatchSection">
-      <div class="mismatch-title">Mismatch <em>Samples</em></div>
-      <div class="mismatch-subtitle">First 10 unique rows from each side</div>
-      <div class="mismatch-grid">
-        <div class="mismatch-col s1">
-          <h4>↳ File 01 Only</h4>
-          <div class="sample-list" id="s1OnlySamples"></div>
+    <!-- Overview tab -->
+    <div class="tab-content active" id="tabOverview">
+      <div class="stats-grid">
+        <div class="stat-card matching">
+          <div class="stat-label">Matching</div>
+          <div class="stat-value" id="statMatching">—</div>
+          <div class="stat-sublabel">rows in both</div>
         </div>
-        <div class="mismatch-col s2">
-          <h4>↳ File 02 Only</h4>
-          <div class="sample-list" id="s2OnlySamples"></div>
+        <div class="stat-card s1-only">
+          <div class="stat-label" id="statS1Label">A Only</div>
+          <div class="stat-value" id="statS1Only">—</div>
+          <div class="stat-sublabel">unique rows</div>
+        </div>
+        <div class="stat-card s2-only">
+          <div class="stat-label" id="statS2Label">B Only</div>
+          <div class="stat-value" id="statS2Only">—</div>
+          <div class="stat-sublabel">unique rows</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total</div>
+          <div class="stat-value" id="statTotal">—</div>
+          <div class="stat-sublabel">analyzed</div>
         </div>
       </div>
+      
+      <div class="breakdown-bar-section">
+        <div class="section-label">
+          <span class="num">·</span>
+          <span>Visual Breakdown</span>
+          <span class="line"></span>
+        </div>
+        <div class="breakdown-bar" id="breakdownBar"></div>
+        <div class="breakdown-legend">
+          <div class="item"><span class="swatch matching"></span><span id="legendMatching">Matching · 0%</span></div>
+          <div class="item"><span class="swatch s1-only"></span><span id="legendS1">A Only · 0%</span></div>
+          <div class="item"><span class="swatch s2-only"></span><span id="legendS2">B Only · 0%</span></div>
+        </div>
+      </div>
+      
+      <div class="insight-panel" id="insightPanel" style="display:none;">
+        <p id="insightText"></p>
+      </div>
+      
+      <div class="process-section">
+        <div class="process-title">Reconciliation Process</div>
+        <ul class="process-list" id="processList"></ul>
+      </div>
     </div>
+    
+    <!-- Matching tab -->
+    <div class="tab-content" id="tabMatching">
+      <div class="sample-section">
+        <div class="sample-section-header">
+          <div class="sample-section-title">Rows present in <em>both datasets</em></div>
+          <div class="sample-section-meta" id="matchingMeta">— rows matched</div>
+        </div>
+        <table class="sample-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Group</th>
+              <th>Exam</th>
+            </tr>
+          </thead>
+          <tbody id="matchingSamples"></tbody>
+        </table>
+        <div class="sample-footer" id="matchingFooter"></div>
+      </div>
+    </div>
+    
+    <!-- S1 Only tab -->
+    <div class="tab-content" id="tabS1Only">
+      <div class="sample-section">
+        <div class="sample-section-header">
+          <div class="sample-section-title" id="s1OnlyTitle">Rows only in <em>Dataset A</em></div>
+          <div class="sample-section-meta" id="s1OnlyMeta">— unique rows</div>
+        </div>
+        <table class="sample-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Group</th>
+              <th>Exam</th>
+            </tr>
+          </thead>
+          <tbody id="s1OnlySamples"></tbody>
+        </table>
+        <div class="sample-footer" id="s1OnlyFooter"></div>
+      </div>
+    </div>
+    
+    <!-- S2 Only tab -->
+    <div class="tab-content" id="tabS2Only">
+      <div class="sample-section">
+        <div class="sample-section-header">
+          <div class="sample-section-title" id="s2OnlyTitle">Rows only in <em>Dataset B</em></div>
+          <div class="sample-section-meta" id="s2OnlyMeta">— unique rows</div>
+        </div>
+        <table class="sample-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Group</th>
+              <th>Exam</th>
+            </tr>
+          </thead>
+          <tbody id="s2OnlySamples"></tbody>
+        </table>
+        <div class="sample-footer" id="s2OnlyFooter"></div>
+      </div>
+    </div>
+    
   </div>
   
   <footer class="footer">
@@ -748,7 +1397,9 @@
 <script>
 'use strict';
 
-// State - keep raw arraybuffers, parse on demand
+// ============== STATE ==============
+let mode = 'double'; // 'double' or 'single'
+
 let file1Buffer = null;
 let file1Name = '';
 let file1Size = 0;
@@ -756,7 +1407,12 @@ let file2Buffer = null;
 let file2Name = '';
 let file2Size = 0;
 
-// Utils
+let singleFileBuffer = null;
+let singleFileName = '';
+let singleFileSize = 0;
+let singleFileSheetNames = [];
+
+// ============== UTILS ==============
 const MOJIBAKE_PAIRS = [
   ['Ã¡', 'á'], ['Ã©', 'é'], ['Ã­', 'í'], ['Ã³', 'ó'], ['Ã¹', 'ú'], ['Ã±', 'ñ'],
   ['Ã‰', 'É'], ['Ã"', 'Ó'], ['Ã', 'Á'], ['Â', '']
@@ -776,11 +1432,14 @@ function fixMojibake(text) {
 
 const ACCENT_REGEX = /[\u0300-\u036f]/g;
 
-function normalize(text) {
+function normalize(text, opts) {
+  opts = opts || {};
   if (!text) return '';
-  return fixMojibake(String(text))
-    .normalize('NFD')
-    .replace(ACCENT_REGEX, '')
+  let s = fixMojibake(String(text));
+  if (!opts.strictAccents) {
+    s = s.normalize('NFD').replace(ACCENT_REGEX, '');
+  }
+  return s
     .toUpperCase()
     .replace(/ª/g, 'A')
     .replace(/º/g, 'O')
@@ -788,27 +1447,69 @@ function normalize(text) {
     .trim();
 }
 
-function formatNum(n) {
-  return n.toLocaleString('en-US');
-}
+function formatNum(n) { return n.toLocaleString('en-US'); }
 
 function escapeHtml(s) {
-  return String(s || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function sleep(ms) {
-  return new Promise(r => setTimeout(r, ms));
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function yieldToUI() { return new Promise(r => setTimeout(r, 0)); }
+
+// ============== MODE SWITCHING ==============
+const body = document.body;
+
+function setMode(newMode) {
+  mode = newMode;
+  document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
+  document.querySelector(`.mode-card[data-mode="${newMode}"]`).classList.add('active');
+  
+  body.classList.remove('mode-single', 'mode-double');
+  body.classList.add('mode-' + newMode);
+  
+  document.getElementById('uploadSectionLabel').textContent = 
+    newMode === 'single' ? 'Upload File' : 'Upload Files';
+  
+  checkReady();
 }
 
-function yieldToUI() {
-  return new Promise(r => setTimeout(r, 0));
-}
+document.querySelectorAll('.mode-card').forEach(card => {
+  card.addEventListener('click', () => setMode(card.dataset.mode));
+});
 
-// File handling
+setMode('double');
+
+// ============== CONTEXT TOGGLE ==============
+const contextToggle = document.getElementById('contextToggle');
+const contextPanel = document.getElementById('contextPanel');
+
+contextToggle.addEventListener('click', () => {
+  contextToggle.classList.toggle('expanded');
+  contextPanel.classList.toggle('active');
+});
+
+// Preset chip handlers
+const PRESET_PROMPTS = {
+  programs: 'One sheet contains multiple programs (MIR, FIR, EIR, etc.) while the other contains only one. Filter to the matching program scope before comparing.',
+  trailing: 'Names and group fields may have trailing or duplicated whitespace. Treat as equal if they match after whitespace cleanup.',
+  duplicates: 'Allow duplicate rows — do not deduplicate. Report exact row counts in both datasets.',
+  strict: 'Treat accented characters as distinct (é ≠ e, á ≠ a). Only match on exact character sequence.'
+};
+
+document.querySelectorAll('.preset-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const preset = chip.dataset.preset;
+    const textarea = document.getElementById('contextPrompt');
+    const existing = textarea.value.trim();
+    const newText = PRESET_PROMPTS[preset];
+    textarea.value = existing ? existing + '\n\n' + newText : newText;
+    textarea.focus();
+  });
+});
+
+// ============== FILE HANDLING ==============
 function setupUploadZone(zoneId, inputId, nameId, metaId, slot) {
   const zone = document.getElementById(zoneId);
   const input = document.getElementById(inputId);
@@ -840,8 +1541,7 @@ function setupUploadZone(zoneId, inputId, nameId, metaId, slot) {
 }
 
 function handleFile(file, zone, nameEl, metaEl, slot) {
-  zone.classList.add('loading');
-  zone.classList.add('has-file');
+  zone.classList.add('loading', 'has-file');
   nameEl.textContent = 'Loading...';
   metaEl.textContent = '';
   
@@ -854,15 +1554,32 @@ function handleFile(file, zone, nameEl, metaEl, slot) {
         file1Buffer = buffer;
         file1Name = file.name;
         file1Size = file.size;
-      } else {
+      } else if (slot === 2) {
         file2Buffer = buffer;
         file2Name = file.name;
         file2Size = file.size;
+      } else if (slot === 'single') {
+        singleFileBuffer = buffer;
+        singleFileName = file.name;
+        singleFileSize = file.size;
+        // Probe sheet names
+        try {
+          const wb = XLSX.read(new Uint8Array(buffer), { type: 'array', bookSheets: true });
+          singleFileSheetNames = wb.SheetNames;
+          populateSheetSelectors(singleFileSheetNames);
+          document.getElementById('sheetSelectors').classList.add('active');
+        } catch (probeErr) {
+          showError('Could not read sheet names: ' + probeErr.message);
+        }
       }
       
       zone.classList.remove('loading');
       nameEl.textContent = file.name;
-      metaEl.textContent = `${(file.size / 1024).toFixed(1)} kb · ready`;
+      let metaText = `${(file.size / 1024).toFixed(1)} kb · ready`;
+      if (slot === 'single' && singleFileSheetNames.length > 0) {
+        metaText += ` · ${singleFileSheetNames.length} sheets`;
+      }
+      metaEl.textContent = metaText;
       
       checkReady();
     } catch (err) {
@@ -877,8 +1594,36 @@ function handleFile(file, zone, nameEl, metaEl, slot) {
   reader.readAsArrayBuffer(file);
 }
 
+function populateSheetSelectors(sheetNames) {
+  const a = document.getElementById('sheetSelectA');
+  const b = document.getElementById('sheetSelectB');
+  a.innerHTML = '';
+  b.innerHTML = '';
+  sheetNames.forEach((name, i) => {
+    const optA = document.createElement('option');
+    optA.value = name;
+    optA.textContent = name;
+    a.appendChild(optA);
+    const optB = document.createElement('option');
+    optB.value = name;
+    optB.textContent = name;
+    b.appendChild(optB);
+  });
+  if (sheetNames.length >= 2) {
+    a.selectedIndex = 0;
+    b.selectedIndex = 1;
+  }
+}
+
 function checkReady() {
-  const ready = file1Buffer && file2Buffer;
+  let ready = false;
+  if (mode === 'double') {
+    ready = !!(file1Buffer && file2Buffer);
+  } else {
+    const a = document.getElementById('sheetSelectA').value;
+    const b = document.getElementById('sheetSelectB').value;
+    ready = !!(singleFileBuffer && a && b && a !== b);
+  }
   document.getElementById('runBtn').disabled = !ready;
   if (ready) {
     document.getElementById('footerStatus').textContent = '● Ready to run';
@@ -887,8 +1632,26 @@ function checkReady() {
 
 setupUploadZone('zone1', 'file1', 'file1Name', 'file1Meta', 1);
 setupUploadZone('zone2', 'file2', 'file2Name', 'file2Meta', 2);
+setupUploadZone('zoneSingle', 'fileSingle', 'singleFileName', 'singleFileMeta', 'single');
 
-// Status log
+document.getElementById('sheetSelectA').addEventListener('change', checkReady);
+document.getElementById('sheetSelectB').addEventListener('change', checkReady);
+
+// ============== TABS ==============
+document.querySelectorAll('.results-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.results-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const tabId = tab.dataset.tab;
+    if (tabId === 'overview') document.getElementById('tabOverview').classList.add('active');
+    if (tabId === 'matching') document.getElementById('tabMatching').classList.add('active');
+    if (tabId === 's1-only') document.getElementById('tabS1Only').classList.add('active');
+    if (tabId === 's2-only') document.getElementById('tabS2Only').classList.add('active');
+  });
+});
+
+// ============== STATUS LOG ==============
 function addStatus(text, done, isError) {
   const lines = document.getElementById('statusLines');
   const div = document.createElement('div');
@@ -910,7 +1673,7 @@ function showError(message) {
   banner.classList.add('active');
 }
 
-// Structure detection
+// ============== STRUCTURE DETECTION ==============
 function detectStructure(sheetData) {
   if (!sheetData || sheetData.length < 2) return { format: 'unknown' };
   
@@ -926,25 +1689,24 @@ function detectStructure(sheetData) {
   }
   
   if (studentCol >= 0 && groupCol >= 0 && examCol >= 0) {
-    return { format: 'long', studentCol: studentCol, groupCol: groupCol, examCol: examCol, programCol: programCol };
+    return { format: 'long', studentCol, groupCol, examCol, programCol };
   }
   
-  // Wide format
   const sampleVal = String(sheetData[1] && sheetData[1][0] || '');
   if (sampleVal.indexOf(' | ') !== -1) {
     const examCols = [];
     for (let i = 1; i < headers.length; i++) {
       const name = String(headers[i] || '').trim();
-      if (name) examCols.push({ name: name, idx: i });
+      if (name) examCols.push({ name, idx: i });
     }
-    return { format: 'wide', firstCol: 0, examCols: examCols };
+    return { format: 'wide', firstCol: 0, examCols };
   }
   
   return { format: 'unknown' };
 }
 
-// Extract & normalize
-async function extractAndNormalize(sheetData, structure, progressCallback) {
+// ============== EXTRACT & NORMALIZE ==============
+async function extractAndNormalize(sheetData, structure, normOpts, programFilter, progressCallback) {
   const seen = new Set();
   const samples = [];
   let extractedCombos = 0;
@@ -955,6 +1717,12 @@ async function extractAndNormalize(sheetData, structure, progressCallback) {
       const row = sheetData[i];
       if (!row) continue;
       
+      // Apply program filter if specified
+      if (programFilter && structure.programCol >= 0) {
+        const prog = String(row[structure.programCol] || '').toUpperCase();
+        if (prog.indexOf(programFilter) === -1) continue;
+      }
+      
       const student = row[structure.studentCol];
       const group = row[structure.groupCol];
       const exam = row[structure.examCol];
@@ -964,13 +1732,13 @@ async function extractAndNormalize(sheetData, structure, progressCallback) {
         const groupStr = String(group);
         const examStr = String(exam);
         
-        const key = normalize(studentStr) + '||' + normalize(groupStr) + '||' + normalize(examStr);
+        const key = normalize(studentStr, normOpts) + '||' + normalize(groupStr, normOpts) + '||' + normalize(examStr, normOpts);
         
         if (!seen.has(key)) {
           seen.add(key);
           extractedCombos++;
-          if (samples.length < 200) {
-            samples.push({ key: key, student: studentStr.trim(), group: groupStr.trim(), exam: examStr.trim() });
+          if (samples.length < 500) {
+            samples.push({ key, student: studentStr.trim(), group: groupStr.trim(), exam: examStr.trim() });
           }
         }
       }
@@ -1008,22 +1776,22 @@ async function extractAndNormalize(sheetData, structure, progressCallback) {
       
       if (!student || !group) continue;
       
-      const studentNorm = normalize(student);
-      const groupNorm = normalize(group);
+      const studentNorm = normalize(student, normOpts);
+      const groupNorm = normalize(group, normOpts);
       
       for (let j = 0; j < examColsLen; j++) {
         const examCol = examCols[j];
         const val = row[examCol.idx];
         if (val !== null && val !== undefined && val !== '') {
           const cleanExam = examCol.name.replace(/\.[12]$/, '').trim().replace(/\s+/g, ' ');
-          const examNorm = normalize(cleanExam);
+          const examNorm = normalize(cleanExam, normOpts);
           const key = studentNorm + '||' + groupNorm + '||' + examNorm;
           
           if (!seen.has(key)) {
             seen.add(key);
             extractedCombos++;
-            if (samples.length < 200) {
-              samples.push({ key: key, student: student, group: group, exam: cleanExam });
+            if (samples.length < 500) {
+              samples.push({ key, student, group, exam: cleanExam });
             }
           }
         }
@@ -1037,9 +1805,46 @@ async function extractAndNormalize(sheetData, structure, progressCallback) {
     if (progressCallback) progressCallback(total, total);
   }
   
-  return { keySet: seen, samples: samples, extractedCombos: extractedCombos };
+  return { keySet: seen, samples, extractedCombos };
 }
 
+// ============== CONTEXT INTERPRETATION ==============
+function interpretContext(text) {
+  const opts = {
+    strictAccents: false,
+    programFilter: null,
+    notes: []
+  };
+  
+  if (!text || !text.trim()) return opts;
+  
+  const lower = text.toLowerCase();
+  
+  if (lower.indexOf('strict') !== -1 && lower.indexOf('accent') !== -1) {
+    opts.strictAccents = true;
+    opts.notes.push('Strict accent matching enabled');
+  }
+  
+  // Look for program names
+  const programs = ['MIR', 'FIR', 'EIR', 'PIR', 'E100', 'P100'];
+  for (const p of programs) {
+    const re = new RegExp('only\\s+(?:has\\s+|contains\\s+|with\\s+)?' + p, 'i');
+    if (re.test(text)) {
+      opts.programFilter = p;
+      opts.notes.push(`Filtering File 01 to program: ${p}`);
+      break;
+    }
+  }
+  
+  // Generic catch
+  if (lower.indexOf('filter') !== -1 && !opts.programFilter) {
+    opts.notes.push('Custom filter logic noted (manual review may be needed)');
+  }
+  
+  return opts;
+}
+
+// ============== MAIN ==============
 async function runReconciliation() {
   const runBtn = document.getElementById('runBtn');
   const runText = document.getElementById('runText');
@@ -1052,107 +1857,140 @@ async function runReconciliation() {
   document.getElementById('errorBanner').classList.remove('active');
   document.getElementById('footerStatus').textContent = '● Processing';
   
+  // Reset to overview tab
+  document.querySelectorAll('.results-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelector('.results-tab[data-tab="overview"]').classList.add('active');
+  document.getElementById('tabOverview').classList.add('active');
+  
   let detectedF1Format = 'unknown';
   let detectedF2Format = 'unknown';
+  let labelA = mode === 'single' ? document.getElementById('sheetSelectA').value : 'Dataset A';
+  let labelB = mode === 'single' ? document.getElementById('sheetSelectB').value : 'Dataset B';
   
   try {
     addStatus('Initializing reconciliation engine…', true);
     await yieldToUI();
     
-    // Parse File 01
-    const sP1 = addStatus('Parsing ' + file1Name + ' (' + (file1Size/1024).toFixed(1) + ' kb)…');
-    await yieldToUI();
+    // Read context
+    const contextText = document.getElementById('contextPrompt').value.trim();
+    const ctxOpts = interpretContext(contextText);
     
-    const wb1 = XLSX.read(new Uint8Array(file1Buffer), { type: 'array', cellDates: false, cellNF: false, cellStyles: false });
-    
-    let sheet1Data = null;
-    let s1Struct = { format: 'unknown' };
-    for (const sn of wb1.SheetNames) {
-      const data = XLSX.utils.sheet_to_json(wb1.Sheets[sn], { defval: null, header: 1, blankrows: false });
-      const struct = detectStructure(data);
-      if (struct.format !== 'unknown') {
-        sheet1Data = data;
-        s1Struct = struct;
-        break;
-      }
+    if (contextText) {
+      addStatus(`Context received: <em>"${escapeHtml(contextText.substring(0, 120))}${contextText.length > 120 ? '…' : ''}"</em>`, true);
+      ctxOpts.notes.forEach(note => {
+        addStatus(`<span style="color:var(--accent)">→</span> ${escapeHtml(note)}`, true);
+      });
+      await yieldToUI();
     }
-    if (!sheet1Data) {
-      sheet1Data = XLSX.utils.sheet_to_json(wb1.Sheets[wb1.SheetNames[0]], { defval: null, header: 1, blankrows: false });
+    
+    let sheet1Data, sheet2Data, s1Struct, s2Struct;
+    
+    if (mode === 'double') {
+      // Two files mode
+      const sP1 = addStatus(`Parsing ${file1Name}…`);
+      await yieldToUI();
+      
+      const wb1 = XLSX.read(new Uint8Array(file1Buffer), { type: 'array', cellDates: false, cellNF: false, cellStyles: false });
+      sheet1Data = null; s1Struct = { format: 'unknown' };
+      for (const sn of wb1.SheetNames) {
+        const data = XLSX.utils.sheet_to_json(wb1.Sheets[sn], { defval: null, header: 1, blankrows: false });
+        const struct = detectStructure(data);
+        if (struct.format !== 'unknown') {
+          sheet1Data = data;
+          s1Struct = struct;
+          break;
+        }
+      }
+      if (!sheet1Data) {
+        sheet1Data = XLSX.utils.sheet_to_json(wb1.Sheets[wb1.SheetNames[0]], { defval: null, header: 1, blankrows: false });
+        s1Struct = detectStructure(sheet1Data);
+      }
+      detectedF1Format = s1Struct.format;
+      markDone(sP1);
+      addStatus(`File 01: <strong>${detectedF1Format.toUpperCase()}</strong> format · ${formatNum(sheet1Data.length)} rows`, true);
+      await yieldToUI();
+      
+      const sP2 = addStatus(`Parsing ${file2Name}…`);
+      await yieldToUI();
+      const wb2 = XLSX.read(new Uint8Array(file2Buffer), { type: 'array', cellDates: false, cellNF: false, cellStyles: false });
+      sheet2Data = null; s2Struct = { format: 'unknown' };
+      for (const sn of wb2.SheetNames) {
+        const data = XLSX.utils.sheet_to_json(wb2.Sheets[sn], { defval: null, header: 1, blankrows: false });
+        const struct = detectStructure(data);
+        if (struct.format !== 'unknown') {
+          sheet2Data = data;
+          s2Struct = struct;
+          break;
+        }
+      }
+      if (!sheet2Data) {
+        sheet2Data = XLSX.utils.sheet_to_json(wb2.Sheets[wb2.SheetNames[0]], { defval: null, header: 1, blankrows: false });
+        s2Struct = detectStructure(sheet2Data);
+      }
+      detectedF2Format = s2Struct.format;
+      markDone(sP2);
+      addStatus(`File 02: <strong>${detectedF2Format.toUpperCase()}</strong> format · ${formatNum(sheet2Data.length)} rows`, true);
+      await yieldToUI();
+      
+      labelA = file1Name;
+      labelB = file2Name;
+      
+    } else {
+      // Single file mode
+      const sP = addStatus(`Parsing ${singleFileName}…`);
+      await yieldToUI();
+      const wb = XLSX.read(new Uint8Array(singleFileBuffer), { type: 'array', cellDates: false, cellNF: false, cellStyles: false });
+      
+      const sheetA = document.getElementById('sheetSelectA').value;
+      const sheetB = document.getElementById('sheetSelectB').value;
+      
+      sheet1Data = XLSX.utils.sheet_to_json(wb.Sheets[sheetA], { defval: null, header: 1, blankrows: false });
+      sheet2Data = XLSX.utils.sheet_to_json(wb.Sheets[sheetB], { defval: null, header: 1, blankrows: false });
+      
       s1Struct = detectStructure(sheet1Data);
-    }
-    
-    detectedF1Format = s1Struct.format;
-    markDone(sP1);
-    addStatus('File 01: detected <strong>' + detectedF1Format.toUpperCase() + '</strong> format · ' + formatNum(sheet1Data.length) + ' rows', true);
-    await yieldToUI();
-    
-    if (detectedF1Format === 'unknown') {
-      throw new Error('Could not detect format of File 01. Expected long format (student_name/group_name/mock_exam columns) or wide format (with " | " separated first column).');
-    }
-    
-    // Parse File 02
-    const sP2 = addStatus('Parsing ' + file2Name + ' (' + (file2Size/1024).toFixed(1) + ' kb)…');
-    await yieldToUI();
-    
-    const wb2 = XLSX.read(new Uint8Array(file2Buffer), { type: 'array', cellDates: false, cellNF: false, cellStyles: false });
-    
-    let sheet2Data = null;
-    let s2Struct = { format: 'unknown' };
-    for (const sn of wb2.SheetNames) {
-      const data = XLSX.utils.sheet_to_json(wb2.Sheets[sn], { defval: null, header: 1, blankrows: false });
-      const struct = detectStructure(data);
-      if (struct.format !== 'unknown') {
-        sheet2Data = data;
-        s2Struct = struct;
-        break;
-      }
-    }
-    if (!sheet2Data) {
-      sheet2Data = XLSX.utils.sheet_to_json(wb2.Sheets[wb2.SheetNames[0]], { defval: null, header: 1, blankrows: false });
       s2Struct = detectStructure(sheet2Data);
+      detectedF1Format = s1Struct.format;
+      detectedF2Format = s2Struct.format;
+      
+      markDone(sP);
+      addStatus(`Sheet "${sheetA}": <strong>${detectedF1Format.toUpperCase()}</strong> · ${formatNum(sheet1Data.length)} rows`, true);
+      addStatus(`Sheet "${sheetB}": <strong>${detectedF2Format.toUpperCase()}</strong> · ${formatNum(sheet2Data.length)} rows`, true);
+      await yieldToUI();
+      
+      labelA = sheetA;
+      labelB = sheetB;
     }
     
-    detectedF2Format = s2Struct.format;
-    markDone(sP2);
-    addStatus('File 02: detected <strong>' + detectedF2Format.toUpperCase() + '</strong> format · ' + formatNum(sheet2Data.length) + ' rows', true);
+    if (detectedF1Format === 'unknown') throw new Error('Could not detect format of ' + labelA);
+    if (detectedF2Format === 'unknown') throw new Error('Could not detect format of ' + labelB);
+    
+    // Extract A
+    const sE1 = addStatus(`Extracting & normalizing ${labelA}…`);
     await yieldToUI();
-    
-    if (detectedF2Format === 'unknown') {
-      throw new Error('Could not detect format of File 02.');
-    }
-    
-    // Extract File 01
-    const sE1 = addStatus('Extracting & normalizing File 01 (mojibake fix, accent removal)…');
-    await yieldToUI();
-    
-    const ext1 = await extractAndNormalize(sheet1Data, s1Struct, function(cur, total) {
+    const ext1 = await extractAndNormalize(sheet1Data, s1Struct, ctxOpts, ctxOpts.programFilter, function(cur, total) {
       const pct = ((cur / total) * 100).toFixed(0);
-      sE1.innerHTML = '<span class="indicator"></span><span>Extracting File 01… ' + pct + '% (' + formatNum(cur) + '/' + formatNum(total) + ' rows)</span>';
+      sE1.innerHTML = `<span class="indicator"></span><span>Extracting ${escapeHtml(labelA)}… ${pct}% (${formatNum(cur)}/${formatNum(total)})</span>`;
     });
-    
-    sheet1Data = null; // free memory
-    
+    sheet1Data = null;
     markDone(sE1);
-    sE1.innerHTML = '<span class="indicator"></span><span>File 01: ' + formatNum(ext1.extractedCombos) + ' unique combos extracted</span>';
+    sE1.innerHTML = `<span class="indicator"></span><span>${escapeHtml(labelA)}: ${formatNum(ext1.extractedCombos)} unique combos</span>`;
     await yieldToUI();
     
-    // Extract File 02
-    const sE2 = addStatus('Extracting & normalizing File 02…');
+    // Extract B (no program filter on B unless explicitly noted)
+    const sE2 = addStatus(`Extracting & normalizing ${labelB}…`);
     await yieldToUI();
-    
-    const ext2 = await extractAndNormalize(sheet2Data, s2Struct, function(cur, total) {
+    const ext2 = await extractAndNormalize(sheet2Data, s2Struct, ctxOpts, null, function(cur, total) {
       const pct = ((cur / total) * 100).toFixed(0);
-      sE2.innerHTML = '<span class="indicator"></span><span>Extracting File 02… ' + pct + '% (' + formatNum(cur) + '/' + formatNum(total) + ' rows)</span>';
+      sE2.innerHTML = `<span class="indicator"></span><span>Extracting ${escapeHtml(labelB)}… ${pct}% (${formatNum(cur)}/${formatNum(total)})</span>`;
     });
-    
     sheet2Data = null;
-    
     markDone(sE2);
-    sE2.innerHTML = '<span class="indicator"></span><span>File 02: ' + formatNum(ext2.extractedCombos) + ' unique combos extracted</span>';
+    sE2.innerHTML = `<span class="indicator"></span><span>${escapeHtml(labelB)}: ${formatNum(ext2.extractedCombos)} unique combos</span>`;
     await yieldToUI();
     
     // Match
-    const sM = addStatus('Cross-matching on normalized keys (student × group × exam)…');
+    const sM = addStatus('Cross-matching on normalized keys…');
     await yieldToUI();
     
     const set1 = ext1.keySet;
@@ -1162,6 +2000,7 @@ async function runReconciliation() {
     let onlyIn1Count = 0;
     let onlyIn2Count = 0;
     
+    const matchingKeys = new Set();
     const onlyIn1Keys = new Set();
     const onlyIn2Keys = new Set();
     
@@ -1169,9 +2008,10 @@ async function runReconciliation() {
     for (const key of set1) {
       if (set2.has(key)) {
         matchingCount++;
+        if (matchingKeys.size < 500) matchingKeys.add(key);
       } else {
         onlyIn1Count++;
-        if (onlyIn1Keys.size < 100) onlyIn1Keys.add(key);
+        if (onlyIn1Keys.size < 500) onlyIn1Keys.add(key);
       }
       counter++;
       if (counter % 5000 === 0) await yieldToUI();
@@ -1181,7 +2021,7 @@ async function runReconciliation() {
     for (const key of set2) {
       if (!set1.has(key)) {
         onlyIn2Count++;
-        if (onlyIn2Keys.size < 100) onlyIn2Keys.add(key);
+        if (onlyIn2Keys.size < 500) onlyIn2Keys.add(key);
       }
       counter++;
       if (counter % 5000 === 0) await yieldToUI();
@@ -1192,22 +2032,29 @@ async function runReconciliation() {
     const total = matchingCount + onlyIn1Count + onlyIn2Count;
     const matchRate = total > 0 ? (matchingCount / total * 100) : 0;
     
-    addStatus('✓ Reconciliation complete · <strong>' + matchRate.toFixed(1) + '% match rate</strong>', true);
+    addStatus(`✓ Reconciliation complete · <strong>${matchRate.toFixed(1)}% match rate</strong>`, true);
     await sleep(400);
     
-    const onlyIn1Samples = ext1.samples.filter(function(s) { return onlyIn1Keys.has(s.key); }).slice(0, 10);
-    const onlyIn2Samples = ext2.samples.filter(function(s) { return onlyIn2Keys.has(s.key); }).slice(0, 10);
+    const matchingSamples = ext1.samples.filter(s => matchingKeys.has(s.key)).slice(0, 50);
+    const onlyIn1Samples = ext1.samples.filter(s => onlyIn1Keys.has(s.key)).slice(0, 50);
+    const onlyIn2Samples = ext2.samples.filter(s => onlyIn2Keys.has(s.key)).slice(0, 50);
     
     renderResults({
       matching: matchingCount,
       onlyIn1: onlyIn1Count,
       onlyIn2: onlyIn2Count,
-      total: total,
-      matchRate: matchRate,
-      onlyIn1Samples: onlyIn1Samples,
-      onlyIn2Samples: onlyIn2Samples,
+      total,
+      matchRate,
+      matchingSamples,
+      onlyIn1Samples,
+      onlyIn2Samples,
       f1Format: detectedF1Format,
-      f2Format: detectedF2Format
+      f2Format: detectedF2Format,
+      labelA,
+      labelB,
+      mode,
+      contextText,
+      ctxOpts
     });
     
     runText.textContent = 'Run Again';
@@ -1226,28 +2073,29 @@ async function runReconciliation() {
 }
 
 function renderResults(r) {
-  const matching = r.matching, onlyIn1 = r.onlyIn1, onlyIn2 = r.onlyIn2;
-  const total = r.total, matchRate = r.matchRate;
-  const onlyIn1Samples = r.onlyIn1Samples, onlyIn2Samples = r.onlyIn2Samples;
-  const f1Format = r.f1Format, f2Format = r.f2Format;
+  // Header meta
+  const modeText = r.mode === 'single' ? 'Same file · two sheets' : 'Two files compared';
+  document.getElementById('resultsMeta').innerHTML = 
+    `${escapeHtml(r.labelA)} <span style="color:var(--accent-warm)">↔</span> ${escapeHtml(r.labelB)} · ${modeText}`;
   
+  // Hero metric
   const heroValue = document.getElementById('heroValue');
-  heroValue.innerHTML = matchRate.toFixed(1) + '<span class="pct">%</span>';
+  heroValue.innerHTML = r.matchRate.toFixed(1) + '<span class="pct">%</span>';
   
   const heroMetric = document.getElementById('heroMetric');
   const heroVerdict = document.getElementById('heroVerdict');
   heroMetric.classList.remove('warning', 'error', 'success');
   
-  if (matchRate >= 99.5) {
+  if (r.matchRate >= 99.5) {
     heroMetric.classList.add('success');
     heroVerdict.innerHTML = 'Sheets are <span class="highlight">in perfect sync.</span>';
-  } else if (matchRate >= 95) {
+  } else if (r.matchRate >= 95) {
     heroMetric.classList.add('success');
     heroVerdict.innerHTML = 'Sheets <span class="highlight">essentially match,</span><br>with negligible drift.';
-  } else if (matchRate >= 75) {
+  } else if (r.matchRate >= 75) {
     heroMetric.classList.add('warning');
     heroVerdict.innerHTML = 'Sheets <span class="highlight">mostly align,</span><br>but some rows diverge.';
-  } else if (matchRate >= 50) {
+  } else if (r.matchRate >= 50) {
     heroMetric.classList.add('warning');
     heroVerdict.innerHTML = 'Sheets <span class="highlight">partially overlap.</span><br>Significant differences found.';
   } else {
@@ -1255,20 +2103,70 @@ function renderResults(r) {
     heroVerdict.innerHTML = 'Sheets do <span class="highlight">not match.</span><br>Major scope or content drift.';
   }
   
-  document.getElementById('statMatching').textContent = formatNum(matching);
-  document.getElementById('statS1Only').textContent = formatNum(onlyIn1);
-  document.getElementById('statS2Only').textContent = formatNum(onlyIn2);
-  document.getElementById('statTotal').textContent = formatNum(total);
+  // Tab labels
+  document.getElementById('tabS1Label').textContent = `In ${truncateLabel(r.labelA)} Only`;
+  document.getElementById('tabS2Label').textContent = `In ${truncateLabel(r.labelB)} Only`;
+  document.getElementById('statS1Label').textContent = truncateLabel(r.labelA) + ' Only';
+  document.getElementById('statS2Label').textContent = truncateLabel(r.labelB) + ' Only';
   
+  // Badge counts
+  document.getElementById('badgeMatching').textContent = formatNum(r.matching);
+  document.getElementById('badgeS1').textContent = formatNum(r.onlyIn1);
+  document.getElementById('badgeS2').textContent = formatNum(r.onlyIn2);
+  
+  // Stats
+  document.getElementById('statMatching').textContent = formatNum(r.matching);
+  document.getElementById('statS1Only').textContent = formatNum(r.onlyIn1);
+  document.getElementById('statS2Only').textContent = formatNum(r.onlyIn2);
+  document.getElementById('statTotal').textContent = formatNum(r.total);
+  
+  // Visual breakdown bar
+  const breakdownBar = document.getElementById('breakdownBar');
+  breakdownBar.innerHTML = '';
+  const total = r.total || 1;
+  const matchPct = (r.matching / total) * 100;
+  const s1Pct = (r.onlyIn1 / total) * 100;
+  const s2Pct = (r.onlyIn2 / total) * 100;
+  
+  if (matchPct > 0) {
+    const seg = document.createElement('div');
+    seg.className = 'breakdown-segment matching';
+    seg.style.flex = matchPct;
+    seg.innerHTML = matchPct >= 8 ? `<span class="seg-label">${matchPct.toFixed(1)}%</span>` : '';
+    breakdownBar.appendChild(seg);
+  }
+  if (s1Pct > 0) {
+    const seg = document.createElement('div');
+    seg.className = 'breakdown-segment s1-only';
+    seg.style.flex = s1Pct;
+    seg.innerHTML = s1Pct >= 8 ? `<span class="seg-label">${s1Pct.toFixed(1)}%</span>` : '';
+    breakdownBar.appendChild(seg);
+  }
+  if (s2Pct > 0) {
+    const seg = document.createElement('div');
+    seg.className = 'breakdown-segment s2-only';
+    seg.style.flex = s2Pct;
+    seg.innerHTML = s2Pct >= 8 ? `<span class="seg-label">${s2Pct.toFixed(1)}%</span>` : '';
+    breakdownBar.appendChild(seg);
+  }
+  
+  document.getElementById('legendMatching').textContent = 
+    `Matching · ${matchPct.toFixed(1)}% (${formatNum(r.matching)})`;
+  document.getElementById('legendS1').textContent = 
+    `${truncateLabel(r.labelA)} Only · ${s1Pct.toFixed(1)}% (${formatNum(r.onlyIn1)})`;
+  document.getElementById('legendS2').textContent = 
+    `${truncateLabel(r.labelB)} Only · ${s2Pct.toFixed(1)}% (${formatNum(r.onlyIn2)})`;
+  
+  // Process steps
   const processList = document.getElementById('processList');
   processList.innerHTML = '';
   const steps = [
-    'Read both Excel files and detected sheet structure',
-    'Identified File 01 as <strong>' + f1Format.toUpperCase() + '</strong> format and File 02 as <strong>' + f2Format.toUpperCase() + '</strong> format',
+    `Read input ${r.mode === 'single' ? 'file' : 'files'} and detected sheet structures`,
+    `Identified <strong>${escapeHtml(truncateLabel(r.labelA))}</strong> as <strong>${r.f1Format.toUpperCase()}</strong> and <strong>${escapeHtml(truncateLabel(r.labelB))}</strong> as <strong>${r.f2Format.toUpperCase()}</strong>`,
     'Extract student × group × exam rows (unpivoting wide sheets)',
     'Apply mojibake fixes (Ã¡→á, Ã©→é, Ã‰→É, etc.)',
-    'Normalize accents and collapse extra whitespace',
-    'Deduplicate combos and merge on normalized keys',
+    r.ctxOpts.strictAccents ? 'Preserved accents (strict matching mode)' : 'Normalize accents and collapse whitespace',
+    r.ctxOpts.programFilter ? `Filtered ${escapeHtml(truncateLabel(r.labelA))} to program: ${r.ctxOpts.programFilter}` : 'Deduplicate combos and merge on normalized keys',
     'Compute match rate and surface mismatched rows'
   ];
   steps.forEach(function(s) {
@@ -1277,50 +2175,89 @@ function renderResults(r) {
     processList.appendChild(li);
   });
   
+  // Insight panel
   const insightPanel = document.getElementById('insightPanel');
   const insightText = document.getElementById('insightText');
   
-  if (matchRate < 95 && (onlyIn1 > 0 || onlyIn2 > 0)) {
-    insightPanel.style.display = 'block';
+  let insights = [];
+  
+  if (r.matchRate < 95 && (r.onlyIn1 > 0 || r.onlyIn2 > 0)) {
+    const ratio = r.onlyIn1 / Math.max(r.onlyIn2, 1);
     
-    const ratio = onlyIn1 / Math.max(onlyIn2, 1);
-    
-    if (ratio > 0.7 && ratio < 1.3 && onlyIn1 > 50) {
-      insightText.innerHTML = 'The unmatched counts on each side are nearly equal (<code>' + formatNum(onlyIn1) + '</code> vs <code>' + formatNum(onlyIn2) + '</code>), which usually means the same students are present in both files but assigned to different groups, or have differently-spelled names. Worth checking if Sheet 1 mixes multiple programs while Sheet 2 only contains one.';
-    } else if (onlyIn1 > onlyIn2 * 2) {
-      insightText.innerHTML = 'File 01 has substantially more unique rows (<code>' + formatNum(onlyIn1) + '</code>) than File 02 (<code>' + formatNum(onlyIn2) + '</code>). File 01 likely contains a broader scope — multiple programs, more time periods, or additional records that don\'t exist in File 02.';
-    } else if (onlyIn2 > onlyIn1 * 2) {
-      insightText.innerHTML = 'File 02 has substantially more unique rows (<code>' + formatNum(onlyIn2) + '</code>) than File 01 (<code>' + formatNum(onlyIn1) + '</code>). File 02 likely contains a broader scope or includes records that File 01 omits.';
+    if (ratio > 0.7 && ratio < 1.3 && r.onlyIn1 > 50) {
+      insights.push(`The unmatched counts on each side are nearly equal (<code>${formatNum(r.onlyIn1)}</code> vs <code>${formatNum(r.onlyIn2)}</code>) — usually means the same students are present in both files but assigned to different groups, or have differently-spelled names.`);
+    } else if (r.onlyIn1 > r.onlyIn2 * 2) {
+      insights.push(`${escapeHtml(truncateLabel(r.labelA))} has substantially more unique rows (<code>${formatNum(r.onlyIn1)}</code>) than ${escapeHtml(truncateLabel(r.labelB))} (<code>${formatNum(r.onlyIn2)}</code>). Likely a broader scope — multiple programs, more time periods, or extra records.`);
+    } else if (r.onlyIn2 > r.onlyIn1 * 2) {
+      insights.push(`${escapeHtml(truncateLabel(r.labelB))} has substantially more unique rows (<code>${formatNum(r.onlyIn2)}</code>) than ${escapeHtml(truncateLabel(r.labelA))} (<code>${formatNum(r.onlyIn1)}</code>).`);
     } else {
-      insightText.innerHTML = 'The non-matching rows are likely due to sparse test data — not every student took every exam — or genuinely different student/group enrollments between the two sources.';
+      insights.push(`The non-matching rows likely reflect sparse test data — not every student took every exam — or genuinely different student/group enrollments.`);
     }
+  }
+  
+  if (r.contextText) {
+    insights.push(`Your context note was applied: <em>"${escapeHtml(r.contextText.substring(0, 200))}${r.contextText.length > 200 ? '…' : ''}"</em>`);
+  }
+  
+  if (insights.length > 0) {
+    insightPanel.style.display = 'block';
+    insightText.innerHTML = insights.map(i => `<p>${i}</p>`).join('');
   } else {
     insightPanel.style.display = 'none';
   }
   
-  const mismatchSection = document.getElementById('mismatchSection');
-  if (onlyIn1 > 0 || onlyIn2 > 0) {
-    mismatchSection.classList.remove('hidden');
-    
-    const s1Container = document.getElementById('s1OnlySamples');
-    const s2Container = document.getElementById('s2OnlySamples');
-    
-    s1Container.innerHTML = onlyIn1Samples.length > 0 
-      ? onlyIn1Samples.map(function(r) {
-          return '<div class="row"><span class="name">' + escapeHtml(r.student) + '</span><span class="meta">' + escapeHtml(r.group) + ' · ' + escapeHtml(r.exam) + '</span></div>';
-        }).join('')
-      : '<div class="row"><span class="meta">— samples not captured —</span></div>';
-    
-    s2Container.innerHTML = onlyIn2Samples.length > 0
-      ? onlyIn2Samples.map(function(r) {
-          return '<div class="row"><span class="name">' + escapeHtml(r.student) + '</span><span class="meta">' + escapeHtml(r.group) + ' · ' + escapeHtml(r.exam) + '</span></div>';
-        }).join('')
-      : '<div class="row"><span class="meta">— samples not captured —</span></div>';
-  } else {
-    mismatchSection.classList.add('hidden');
-  }
+  // Sample tables
+  renderSampleTable('matchingSamples', r.matchingSamples, r.matching);
+  renderSampleTable('s1OnlySamples', r.onlyIn1Samples, r.onlyIn1);
+  renderSampleTable('s2OnlySamples', r.onlyIn2Samples, r.onlyIn2);
+  
+  document.getElementById('matchingMeta').textContent = 
+    `${formatNum(r.matching)} rows in both datasets`;
+  document.getElementById('s1OnlyMeta').textContent = 
+    `${formatNum(r.onlyIn1)} unique rows`;
+  document.getElementById('s2OnlyMeta').textContent = 
+    `${formatNum(r.onlyIn2)} unique rows`;
+  
+  document.getElementById('s1OnlyTitle').innerHTML = 
+    `Rows only in <em>${escapeHtml(truncateLabel(r.labelA))}</em>`;
+  document.getElementById('s2OnlyTitle').innerHTML = 
+    `Rows only in <em>${escapeHtml(truncateLabel(r.labelB))}</em>`;
+  
+  // Footer counts
+  document.getElementById('matchingFooter').textContent = 
+    r.matching > 50 ? `Showing first 50 of ${formatNum(r.matching)} matching rows` : `Showing all ${formatNum(r.matching)} rows`;
+  document.getElementById('s1OnlyFooter').textContent = 
+    r.onlyIn1 > 50 ? `Showing first 50 of ${formatNum(r.onlyIn1)} unique rows` : `Showing all ${formatNum(r.onlyIn1)} rows`;
+  document.getElementById('s2OnlyFooter').textContent = 
+    r.onlyIn2 > 50 ? `Showing first 50 of ${formatNum(r.onlyIn2)} unique rows` : `Showing all ${formatNum(r.onlyIn2)} rows`;
   
   document.getElementById('results').classList.add('active');
+  
+  // Scroll to results
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderSampleTable(tbodyId, samples, totalCount) {
+  const tbody = document.getElementById(tbodyId);
+  if (!samples || samples.length === 0) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="3">— no rows in this category —</td></tr>';
+    return;
+  }
+  tbody.innerHTML = samples.map(s => `
+    <tr>
+      <td class="student-cell">${escapeHtml(s.student)}</td>
+      <td class="group-cell">${escapeHtml(s.group)}</td>
+      <td class="exam-cell">${escapeHtml(s.exam)}</td>
+    </tr>
+  `).join('');
+}
+
+function truncateLabel(s) {
+  if (!s) return '—';
+  // Strip extension if it's a filename
+  s = s.replace(/\.(xlsx|xls|csv)$/i, '');
+  if (s.length > 24) return s.substring(0, 22) + '…';
+  return s;
 }
 
 document.getElementById('runBtn').addEventListener('click', runReconciliation);
@@ -1328,12 +2265,25 @@ document.getElementById('runBtn').addEventListener('click', runReconciliation);
 document.getElementById('resetBtn').addEventListener('click', function() {
   file1Buffer = null;
   file2Buffer = null;
-  file1Name = '';
-  file2Name = '';
-  document.getElementById('zone1').classList.remove('has-file');
-  document.getElementById('zone2').classList.remove('has-file');
+  singleFileBuffer = null;
+  file1Name = file2Name = singleFileName = '';
+  singleFileSheetNames = [];
+  
+  ['zone1', 'zone2', 'zoneSingle'].forEach(id => {
+    document.getElementById(id).classList.remove('has-file', 'loading');
+  });
+  
   document.getElementById('file1').value = '';
   document.getElementById('file2').value = '';
+  document.getElementById('fileSingle').value = '';
+  document.getElementById('sheetSelectors').classList.remove('active');
+  document.getElementById('sheetSelectA').innerHTML = '';
+  document.getElementById('sheetSelectB').innerHTML = '';
+  
+  document.getElementById('contextPrompt').value = '';
+  document.getElementById('contextToggle').classList.remove('expanded');
+  document.getElementById('contextPanel').classList.remove('active');
+  
   document.getElementById('statusPanel').classList.remove('active');
   document.getElementById('results').classList.remove('active');
   document.getElementById('errorBanner').classList.remove('active');
