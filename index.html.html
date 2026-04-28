@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Reconciliation Agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  :root {
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --surface-2: #1c1c1c;
+    --border: #2a2a2a;
+    --border-bright: #3a3a3a;
+    --text: #f5f5f0;
+    --text-dim: #888;
+    --text-muted: #555;
+    --accent: #d4ff3a;
+    --accent-warm: #ff7a45;
+    --success: #4ade80;
+    --error: #f87171;
+    --warning: #fbbf24;
+  }
+  
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Fraunces', Georgia, serif;
+    min-height: 100vh;
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+  
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 80px 80px;
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 60px 40px;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 60px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 30px;
+  }
+  
+  .brand {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  
+  .brand .dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+  
+  h1 {
+    font-size: clamp(48px, 6vw, 88px);
+    font-weight: 300;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+    font-style: italic;
+  }
+  
+  h1 .em {
+    font-style: normal;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-align: right;
+    line-height: 1.8;
+  }
+  
+  .subtitle .key { color: var(--accent); }
+  
+  .upload-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+  
+  @media (max-width: 768px) {
+    .upload-grid { grid-template-columns: 1fr; }
+    .header { flex-direction: column; align-items: flex-start; gap: 30px; }
+    .subtitle { text-align: left; }
+    .container { padding: 40px 20px; }
+  }
+  
+  .upload-zone {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 40px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 240px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .upload-zone:hover { border-color: var(--accent); background: var(--surface-2); }
+  .upload-zone.has-file { border-color: var(--accent); background: linear-gradient(135deg, var(--surface), var(--surface-2)); }
+  .upload-zone.dragover { border-color: var(--accent); background: var(--surface-2); transform: scale(1.01); }
+  .upload-zone.loading { border-color: var(--warning); }
+  
+  .upload-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  
+  .upload-number {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+  }
+  
+  .upload-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    margin-top: 20px;
+  }
+  
+  .upload-text {
+    font-size: 28px;
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.2;
+  }
+  
+  .upload-text .accent { color: var(--accent); font-style: normal; font-weight: 500; }
+  .file-info { display: none; }
+  .has-file .upload-text { display: none; }
+  .has-file .file-info { display: block; width: 100%; }
+  
+  .file-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--accent);
+    word-break: break-all;
+    margin-bottom: 12px;
+  }
+  
+  .file-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+  
+  .upload-hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: auto;
+  }
+  
+  input[type="file"] { display: none; }
+  
+  .action-bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 40px;
+    gap: 16px;
+  }
+  
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 18px 40px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .btn-primary:hover:not(:disabled) {
+    background: var(--text);
+    transform: translateY(-1px);
+  }
+  
+  .btn-primary:disabled {
+    background: var(--border);
+    color: var(--text-muted);
+    cursor: not-allowed;
+  }
+  
+  .btn-primary .arrow {
+    margin-left: 12px;
+    display: inline-block;
+    transition: transform 0.2s ease;
+  }
+  
+  .btn-primary:hover:not(:disabled) .arrow { transform: translateX(4px); }
+  
+  .btn-reset {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    padding: 12px 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .btn-reset:hover { color: var(--text); border-color: var(--text-dim); }
+  
+  .status-panel {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 30px;
+    margin-bottom: 40px;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  
+  .status-panel.active { display: block; }
+  
+  .status-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    animation: fadeIn 0.3s forwards;
+  }
+  
+  .status-line .indicator {
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  
+  .status-line.done .indicator { background: var(--success); }
+  .status-line.done { color: var(--text); }
+  .status-line.error .indicator { background: var(--error); }
+  .status-line.error { color: var(--error); }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  
+  .results { display: none; }
+  .results.active { display: block; }
+  
+  .hero-metric {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 60px 50px;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .hero-metric::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--accent);
+  }
+  
+  .hero-metric.warning::before { background: var(--warning); }
+  .hero-metric.error::before { background: var(--error); }
+  .hero-metric.success::before { background: var(--success); }
+  
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+  
+  @media (max-width: 768px) {
+    .hero-grid { grid-template-columns: 1fr; gap: 30px; }
+    .hero-metric { padding: 40px 30px; }
+  }
+  
+  .hero-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  
+  .hero-value {
+    font-size: clamp(72px, 12vw, 160px);
+    font-weight: 300;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    color: var(--accent);
+  }
+  
+  .hero-metric.warning .hero-value { color: var(--warning); }
+  .hero-metric.error .hero-value { color: var(--error); }
+  .hero-metric.success .hero-value { color: var(--success); }
+  
+  .hero-value .pct {
+    font-size: 0.4em;
+    color: var(--text-dim);
+    font-weight: 400;
+    margin-left: 8px;
+  }
+  
+  .hero-verdict {
+    font-size: 32px;
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.2;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  
+  .hero-verdict .highlight {
+    font-style: normal;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  
+  .hero-metric.warning .hero-verdict .highlight { color: var(--warning); }
+  .hero-metric.error .hero-verdict .highlight { color: var(--error); }
+  
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    margin-bottom: 32px;
+  }
+  
+  @media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+  
+  .stat-card { background: var(--surface); padding: 32px 28px; }
+  
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  
+  .stat-value {
+    font-size: 42px;
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin-bottom: 8px;
+  }
+  
+  .stat-sublabel {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  
+  .stat-card.matching .stat-value { color: var(--success); }
+  .stat-card.s1-only .stat-value { color: var(--accent-warm); }
+  .stat-card.s2-only .stat-value { color: var(--warning); }
+  
+  .process-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 40px;
+    margin-bottom: 32px;
+  }
+  
+  .process-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .process-list { list-style: none; counter-reset: step; }
+  
+  .process-list li {
+    counter-increment: step;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 60px 1fr auto;
+    gap: 20px;
+    align-items: center;
+    font-size: 15px;
+  }
+  
+  .process-list li:last-child { border-bottom: none; }
+  
+  .process-list li::before {
+    content: counter(step, decimal-leading-zero);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+  }
+  
+  .process-list li .check {
+    color: var(--success);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+  
+  .mismatch-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 40px;
+    margin-bottom: 32px;
+  }
+  
+  .mismatch-section.hidden { display: none; }
+  
+  .mismatch-title {
+    font-size: 24px;
+    font-weight: 400;
+    font-style: italic;
+    margin-bottom: 8px;
+  }
+  
+  .mismatch-subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+  }
+  
+  .mismatch-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  
+  @media (max-width: 768px) { .mismatch-grid { grid-template-columns: 1fr; } }
+  
+  .mismatch-col h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .mismatch-col.s1 h4 { color: var(--accent-warm); }
+  .mismatch-col.s2 h4 { color: var(--warning); }
+  
+  .sample-list {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.8;
+  }
+  
+  .sample-list .row { padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .sample-list .row:last-child { border-bottom: none; }
+  .sample-list .name { color: var(--text); display: block; }
+  .sample-list .meta { font-size: 10px; color: var(--text-muted); }
+  
+  .footer {
+    margin-top: 80px;
+    padding-top: 30px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  
+  .footer .status { color: var(--accent); }
+  
+  .spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  
+  @keyframes spin { to { transform: rotate(360deg); } }
+  
+  .insight-panel {
+    background: linear-gradient(135deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--border-bright);
+    padding: 30px 40px;
+    margin-bottom: 32px;
+    position: relative;
+  }
+  
+  .insight-panel::before {
+    content: 'INSIGHT';
+    position: absolute;
+    top: -10px;
+    left: 30px;
+    background: var(--bg);
+    padding: 0 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+  }
+  
+  .insight-panel p { font-size: 16px; line-height: 1.7; color: var(--text); }
+  .insight-panel p + p { margin-top: 12px; }
+  
+  .insight-panel code {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-size: 13px;
+    color: var(--accent);
+  }
+  
+  .error-banner {
+    background: rgba(248, 113, 113, 0.1);
+    border: 1px solid var(--error);
+    padding: 20px 30px;
+    margin-bottom: 32px;
+    color: var(--error);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    display: none;
+  }
+  
+  .error-banner.active { display: block; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  
+  <header class="header">
+    <div>
+      <div class="brand"><span class="dot"></span>Reconciliation Agent / v2.0</div>
+      <h1>Cross-check, <span class="em">two ways.</span></h1>
+    </div>
+    <div class="subtitle">
+      <div><span class="key">→</span> Upload two Excel files</div>
+      <div><span class="key">→</span> Mojibake repair, accent normalization</div>
+      <div><span class="key">→</span> Wide ↔ long format detection</div>
+      <div><span class="key">→</span> Match rate analysis</div>
+    </div>
+  </header>
+  
+  <div class="upload-grid">
+    <label class="upload-zone" id="zone1">
+      <div class="upload-number">FILE_01</div>
+      <div class="upload-label">First Dataset</div>
+      <div class="upload-content">
+        <div class="upload-text">drop a <span class="accent">.xlsx</span> file<br>or click to browse</div>
+        <div class="file-info">
+          <div class="file-name" id="file1Name"></div>
+          <div class="file-meta" id="file1Meta"></div>
+        </div>
+      </div>
+      <div class="upload-hint">↳ accepts .xlsx</div>
+      <input type="file" id="file1" accept=".xlsx,.xls">
+    </label>
+    
+    <label class="upload-zone" id="zone2">
+      <div class="upload-number">FILE_02</div>
+      <div class="upload-label">Second Dataset</div>
+      <div class="upload-content">
+        <div class="upload-text">drop a <span class="accent">.xlsx</span> file<br>or click to browse</div>
+        <div class="file-info">
+          <div class="file-name" id="file2Name"></div>
+          <div class="file-meta" id="file2Meta"></div>
+        </div>
+      </div>
+      <div class="upload-hint">↳ accepts .xlsx</div>
+      <input type="file" id="file2" accept=".xlsx,.xls">
+    </label>
+  </div>
+  
+  <div class="action-bar">
+    <button class="btn-reset" id="resetBtn" style="display:none;">Reset</button>
+    <button class="btn-primary" id="runBtn" disabled>
+      <span id="runText">Run Reconciliation</span>
+      <span class="arrow">→</span>
+    </button>
+  </div>
+  
+  <div class="error-banner" id="errorBanner"></div>
+  
+  <div class="status-panel" id="statusPanel">
+    <div id="statusLines"></div>
+  </div>
+  
+  <div class="results" id="results">
+    
+    <div class="hero-metric" id="heroMetric">
+      <div class="hero-grid">
+        <div>
+          <div class="hero-label">Match Rate</div>
+          <div class="hero-value" id="heroValue">—<span class="pct">%</span></div>
+        </div>
+        <div>
+          <div class="hero-label">Verdict</div>
+          <div class="hero-verdict" id="heroVerdict"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="stats-grid">
+      <div class="stat-card matching">
+        <div class="stat-label">Matching</div>
+        <div class="stat-value" id="statMatching">—</div>
+        <div class="stat-sublabel">rows in both</div>
+      </div>
+      <div class="stat-card s1-only">
+        <div class="stat-label">File 01 Only</div>
+        <div class="stat-value" id="statS1Only">—</div>
+        <div class="stat-sublabel">unique rows</div>
+      </div>
+      <div class="stat-card s2-only">
+        <div class="stat-label">File 02 Only</div>
+        <div class="stat-value" id="statS2Only">—</div>
+        <div class="stat-sublabel">unique rows</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Rows</div>
+        <div class="stat-value" id="statTotal">—</div>
+        <div class="stat-sublabel">analyzed</div>
+      </div>
+    </div>
+    
+    <div class="insight-panel" id="insightPanel" style="display:none;">
+      <p id="insightText"></p>
+    </div>
+    
+    <div class="process-section">
+      <div class="process-title">Reconciliation Process</div>
+      <ul class="process-list" id="processList"></ul>
+    </div>
+    
+    <div class="mismatch-section hidden" id="mismatchSection">
+      <div class="mismatch-title">Mismatch <em>Samples</em></div>
+      <div class="mismatch-subtitle">First 10 unique rows from each side</div>
+      <div class="mismatch-grid">
+        <div class="mismatch-col s1">
+          <h4>↳ File 01 Only</h4>
+          <div class="sample-list" id="s1OnlySamples"></div>
+        </div>
+        <div class="mismatch-col s2">
+          <h4>↳ File 02 Only</h4>
+          <div class="sample-list" id="s2OnlySamples"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer class="footer">
+    <div>Reconciliation Agent · Built for Rayan</div>
+    <div class="status" id="footerStatus">● Ready</div>
+  </footer>
+  
+</div>
+
+<script>
+'use strict';
+
+// State - keep raw arraybuffers, parse on demand
+let file1Buffer = null;
+let file1Name = '';
+let file1Size = 0;
+let file2Buffer = null;
+let file2Name = '';
+let file2Size = 0;
+
+// Utils
+const MOJIBAKE_PAIRS = [
+  ['Ã¡', 'á'], ['Ã©', 'é'], ['Ã­', 'í'], ['Ã³', 'ó'], ['Ã¹', 'ú'], ['Ã±', 'ñ'],
+  ['Ã‰', 'É'], ['Ã"', 'Ó'], ['Ã', 'Á'], ['Â', '']
+];
+
+function fixMojibake(text) {
+  if (!text) return '';
+  let s = text;
+  for (let i = 0; i < MOJIBAKE_PAIRS.length; i++) {
+    const pair = MOJIBAKE_PAIRS[i];
+    if (s.indexOf(pair[0]) !== -1) {
+      s = s.split(pair[0]).join(pair[1]);
+    }
+  }
+  return s;
+}
+
+const ACCENT_REGEX = /[\u0300-\u036f]/g;
+
+function normalize(text) {
+  if (!text) return '';
+  return fixMojibake(String(text))
+    .normalize('NFD')
+    .replace(ACCENT_REGEX, '')
+    .toUpperCase()
+    .replace(/ª/g, 'A')
+    .replace(/º/g, 'O')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function formatNum(n) {
+  return n.toLocaleString('en-US');
+}
+
+function escapeHtml(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function sleep(ms) {
+  return new Promise(r => setTimeout(r, ms));
+}
+
+function yieldToUI() {
+  return new Promise(r => setTimeout(r, 0));
+}
+
+// File handling
+function setupUploadZone(zoneId, inputId, nameId, metaId, slot) {
+  const zone = document.getElementById(zoneId);
+  const input = document.getElementById(inputId);
+  const nameEl = document.getElementById(nameId);
+  const metaEl = document.getElementById(metaId);
+  
+  input.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) handleFile(file, zone, nameEl, metaEl, slot);
+  });
+  
+  ['dragover', 'dragenter'].forEach(evt => {
+    zone.addEventListener(evt, (e) => {
+      e.preventDefault();
+      zone.classList.add('dragover');
+    });
+  });
+  
+  ['dragleave', 'dragend'].forEach(evt => {
+    zone.addEventListener(evt, () => zone.classList.remove('dragover'));
+  });
+  
+  zone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file, zone, nameEl, metaEl, slot);
+  });
+}
+
+function handleFile(file, zone, nameEl, metaEl, slot) {
+  zone.classList.add('loading');
+  zone.classList.add('has-file');
+  nameEl.textContent = 'Loading...';
+  metaEl.textContent = '';
+  
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const buffer = e.target.result;
+      
+      if (slot === 1) {
+        file1Buffer = buffer;
+        file1Name = file.name;
+        file1Size = file.size;
+      } else {
+        file2Buffer = buffer;
+        file2Name = file.name;
+        file2Size = file.size;
+      }
+      
+      zone.classList.remove('loading');
+      nameEl.textContent = file.name;
+      metaEl.textContent = `${(file.size / 1024).toFixed(1)} kb · ready`;
+      
+      checkReady();
+    } catch (err) {
+      showError('Failed to read ' + file.name + ': ' + err.message);
+      zone.classList.remove('loading', 'has-file');
+    }
+  };
+  reader.onerror = () => {
+    showError('Failed to read ' + file.name);
+    zone.classList.remove('loading', 'has-file');
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function checkReady() {
+  const ready = file1Buffer && file2Buffer;
+  document.getElementById('runBtn').disabled = !ready;
+  if (ready) {
+    document.getElementById('footerStatus').textContent = '● Ready to run';
+  }
+}
+
+setupUploadZone('zone1', 'file1', 'file1Name', 'file1Meta', 1);
+setupUploadZone('zone2', 'file2', 'file2Name', 'file2Meta', 2);
+
+// Status log
+function addStatus(text, done, isError) {
+  const lines = document.getElementById('statusLines');
+  const div = document.createElement('div');
+  div.className = 'status-line' + (done ? ' done' : '') + (isError ? ' error' : '');
+  div.innerHTML = '<span class="indicator"></span><span>' + text + '</span>';
+  lines.appendChild(div);
+  const panel = document.getElementById('statusPanel');
+  panel.scrollTop = panel.scrollHeight;
+  return div;
+}
+
+function markDone(line) {
+  if (line) line.classList.add('done');
+}
+
+function showError(message) {
+  const banner = document.getElementById('errorBanner');
+  banner.textContent = '⚠ ' + message;
+  banner.classList.add('active');
+}
+
+// Structure detection
+function detectStructure(sheetData) {
+  if (!sheetData || sheetData.length < 2) return { format: 'unknown' };
+  
+  const headers = sheetData[0] || [];
+  
+  let studentCol = -1, groupCol = -1, examCol = -1, programCol = -1;
+  for (let i = 0; i < headers.length; i++) {
+    const h = String(headers[i] || '').toLowerCase().trim();
+    if (h === 'student_name') studentCol = i;
+    if (h === 'group_name') groupCol = i;
+    if (h === 'mock_exam') examCol = i;
+    if (h === 'program_name') programCol = i;
+  }
+  
+  if (studentCol >= 0 && groupCol >= 0 && examCol >= 0) {
+    return { format: 'long', studentCol: studentCol, groupCol: groupCol, examCol: examCol, programCol: programCol };
+  }
+  
+  // Wide format
+  const sampleVal = String(sheetData[1] && sheetData[1][0] || '');
+  if (sampleVal.indexOf(' | ') !== -1) {
+    const examCols = [];
+    for (let i = 1; i < headers.length; i++) {
+      const name = String(headers[i] || '').trim();
+      if (name) examCols.push({ name: name, idx: i });
+    }
+    return { format: 'wide', firstCol: 0, examCols: examCols };
+  }
+  
+  return { format: 'unknown' };
+}
+
+// Extract & normalize
+async function extractAndNormalize(sheetData, structure, progressCallback) {
+  const seen = new Set();
+  const samples = [];
+  let extractedCombos = 0;
+  
+  if (structure.format === 'long') {
+    const total = sheetData.length;
+    for (let i = 1; i < total; i++) {
+      const row = sheetData[i];
+      if (!row) continue;
+      
+      const student = row[structure.studentCol];
+      const group = row[structure.groupCol];
+      const exam = row[structure.examCol];
+      
+      if (student && group && exam) {
+        const studentStr = String(student);
+        const groupStr = String(group);
+        const examStr = String(exam);
+        
+        const key = normalize(studentStr) + '||' + normalize(groupStr) + '||' + normalize(examStr);
+        
+        if (!seen.has(key)) {
+          seen.add(key);
+          extractedCombos++;
+          if (samples.length < 200) {
+            samples.push({ key: key, student: studentStr.trim(), group: groupStr.trim(), exam: examStr.trim() });
+          }
+        }
+      }
+      
+      if (i % 2000 === 0) {
+        if (progressCallback) progressCallback(i, total);
+        await yieldToUI();
+      }
+    }
+    if (progressCallback) progressCallback(total, total);
+    
+  } else if (structure.format === 'wide') {
+    let startRow = 1;
+    const firstDataRow = String(sheetData[1] && sheetData[1][0] || '');
+    if (firstDataRow.toLowerCase().indexOf('student name') !== -1 && firstDataRow.indexOf('|') !== -1) {
+      startRow = 2;
+    }
+    
+    const total = sheetData.length;
+    const examCols = structure.examCols;
+    const examColsLen = examCols.length;
+    
+    for (let i = startRow; i < total; i++) {
+      const row = sheetData[i];
+      if (!row || !row[0]) continue;
+      
+      const firstCellStr = String(row[0]);
+      const pipeIdx = firstCellStr.indexOf(' | ');
+      if (pipeIdx === -1) continue;
+      
+      const student = firstCellStr.substring(0, pipeIdx).trim();
+      const restStr = firstCellStr.substring(pipeIdx + 3);
+      const nextPipe = restStr.indexOf(' | ');
+      const group = (nextPipe === -1 ? restStr : restStr.substring(0, nextPipe)).trim();
+      
+      if (!student || !group) continue;
+      
+      const studentNorm = normalize(student);
+      const groupNorm = normalize(group);
+      
+      for (let j = 0; j < examColsLen; j++) {
+        const examCol = examCols[j];
+        const val = row[examCol.idx];
+        if (val !== null && val !== undefined && val !== '') {
+          const cleanExam = examCol.name.replace(/\.[12]$/, '').trim().replace(/\s+/g, ' ');
+          const examNorm = normalize(cleanExam);
+          const key = studentNorm + '||' + groupNorm + '||' + examNorm;
+          
+          if (!seen.has(key)) {
+            seen.add(key);
+            extractedCombos++;
+            if (samples.length < 200) {
+              samples.push({ key: key, student: student, group: group, exam: cleanExam });
+            }
+          }
+        }
+      }
+      
+      if (i % 100 === 0) {
+        if (progressCallback) progressCallback(i, total);
+        await yieldToUI();
+      }
+    }
+    if (progressCallback) progressCallback(total, total);
+  }
+  
+  return { keySet: seen, samples: samples, extractedCombos: extractedCombos };
+}
+
+async function runReconciliation() {
+  const runBtn = document.getElementById('runBtn');
+  const runText = document.getElementById('runText');
+  runBtn.disabled = true;
+  runText.innerHTML = '<span class="spinner"></span> Processing';
+  
+  document.getElementById('statusPanel').classList.add('active');
+  document.getElementById('statusLines').innerHTML = '';
+  document.getElementById('results').classList.remove('active');
+  document.getElementById('errorBanner').classList.remove('active');
+  document.getElementById('footerStatus').textContent = '● Processing';
+  
+  let detectedF1Format = 'unknown';
+  let detectedF2Format = 'unknown';
+  
+  try {
+    addStatus('Initializing reconciliation engine…', true);
+    await yieldToUI();
+    
+    // Parse File 01
+    const sP1 = addStatus('Parsing ' + file1Name + ' (' + (file1Size/1024).toFixed(1) + ' kb)…');
+    await yieldToUI();
+    
+    const wb1 = XLSX.read(new Uint8Array(file1Buffer), { type: 'array', cellDates: false, cellNF: false, cellStyles: false });
+    
+    let sheet1Data = null;
+    let s1Struct = { format: 'unknown' };
+    for (const sn of wb1.SheetNames) {
+      const data = XLSX.utils.sheet_to_json(wb1.Sheets[sn], { defval: null, header: 1, blankrows: false });
+      const struct = detectStructure(data);
+      if (struct.format !== 'unknown') {
+        sheet1Data = data;
+        s1Struct = struct;
+        break;
+      }
+    }
+    if (!sheet1Data) {
+      sheet1Data = XLSX.utils.sheet_to_json(wb1.Sheets[wb1.SheetNames[0]], { defval: null, header: 1, blankrows: false });
+      s1Struct = detectStructure(sheet1Data);
+    }
+    
+    detectedF1Format = s1Struct.format;
+    markDone(sP1);
+    addStatus('File 01: detected <strong>' + detectedF1Format.toUpperCase() + '</strong> format · ' + formatNum(sheet1Data.length) + ' rows', true);
+    await yieldToUI();
+    
+    if (detectedF1Format === 'unknown') {
+      throw new Error('Could not detect format of File 01. Expected long format (student_name/group_name/mock_exam columns) or wide format (with " | " separated first column).');
+    }
+    
+    // Parse File 02
+    const sP2 = addStatus('Parsing ' + file2Name + ' (' + (file2Size/1024).toFixed(1) + ' kb)…');
+    await yieldToUI();
+    
+    const wb2 = XLSX.read(new Uint8Array(file2Buffer), { type: 'array', cellDates: false, cellNF: false, cellStyles: false });
+    
+    let sheet2Data = null;
+    let s2Struct = { format: 'unknown' };
+    for (const sn of wb2.SheetNames) {
+      const data = XLSX.utils.sheet_to_json(wb2.Sheets[sn], { defval: null, header: 1, blankrows: false });
+      const struct = detectStructure(data);
+      if (struct.format !== 'unknown') {
+        sheet2Data = data;
+        s2Struct = struct;
+        break;
+      }
+    }
+    if (!sheet2Data) {
+      sheet2Data = XLSX.utils.sheet_to_json(wb2.Sheets[wb2.SheetNames[0]], { defval: null, header: 1, blankrows: false });
+      s2Struct = detectStructure(sheet2Data);
+    }
+    
+    detectedF2Format = s2Struct.format;
+    markDone(sP2);
+    addStatus('File 02: detected <strong>' + detectedF2Format.toUpperCase() + '</strong> format · ' + formatNum(sheet2Data.length) + ' rows', true);
+    await yieldToUI();
+    
+    if (detectedF2Format === 'unknown') {
+      throw new Error('Could not detect format of File 02.');
+    }
+    
+    // Extract File 01
+    const sE1 = addStatus('Extracting & normalizing File 01 (mojibake fix, accent removal)…');
+    await yieldToUI();
+    
+    const ext1 = await extractAndNormalize(sheet1Data, s1Struct, function(cur, total) {
+      const pct = ((cur / total) * 100).toFixed(0);
+      sE1.innerHTML = '<span class="indicator"></span><span>Extracting File 01… ' + pct + '% (' + formatNum(cur) + '/' + formatNum(total) + ' rows)</span>';
+    });
+    
+    sheet1Data = null; // free memory
+    
+    markDone(sE1);
+    sE1.innerHTML = '<span class="indicator"></span><span>File 01: ' + formatNum(ext1.extractedCombos) + ' unique combos extracted</span>';
+    await yieldToUI();
+    
+    // Extract File 02
+    const sE2 = addStatus('Extracting & normalizing File 02…');
+    await yieldToUI();
+    
+    const ext2 = await extractAndNormalize(sheet2Data, s2Struct, function(cur, total) {
+      const pct = ((cur / total) * 100).toFixed(0);
+      sE2.innerHTML = '<span class="indicator"></span><span>Extracting File 02… ' + pct + '% (' + formatNum(cur) + '/' + formatNum(total) + ' rows)</span>';
+    });
+    
+    sheet2Data = null;
+    
+    markDone(sE2);
+    sE2.innerHTML = '<span class="indicator"></span><span>File 02: ' + formatNum(ext2.extractedCombos) + ' unique combos extracted</span>';
+    await yieldToUI();
+    
+    // Match
+    const sM = addStatus('Cross-matching on normalized keys (student × group × exam)…');
+    await yieldToUI();
+    
+    const set1 = ext1.keySet;
+    const set2 = ext2.keySet;
+    
+    let matchingCount = 0;
+    let onlyIn1Count = 0;
+    let onlyIn2Count = 0;
+    
+    const onlyIn1Keys = new Set();
+    const onlyIn2Keys = new Set();
+    
+    let counter = 0;
+    for (const key of set1) {
+      if (set2.has(key)) {
+        matchingCount++;
+      } else {
+        onlyIn1Count++;
+        if (onlyIn1Keys.size < 100) onlyIn1Keys.add(key);
+      }
+      counter++;
+      if (counter % 5000 === 0) await yieldToUI();
+    }
+    
+    counter = 0;
+    for (const key of set2) {
+      if (!set1.has(key)) {
+        onlyIn2Count++;
+        if (onlyIn2Keys.size < 100) onlyIn2Keys.add(key);
+      }
+      counter++;
+      if (counter % 5000 === 0) await yieldToUI();
+    }
+    
+    markDone(sM);
+    
+    const total = matchingCount + onlyIn1Count + onlyIn2Count;
+    const matchRate = total > 0 ? (matchingCount / total * 100) : 0;
+    
+    addStatus('✓ Reconciliation complete · <strong>' + matchRate.toFixed(1) + '% match rate</strong>', true);
+    await sleep(400);
+    
+    const onlyIn1Samples = ext1.samples.filter(function(s) { return onlyIn1Keys.has(s.key); }).slice(0, 10);
+    const onlyIn2Samples = ext2.samples.filter(function(s) { return onlyIn2Keys.has(s.key); }).slice(0, 10);
+    
+    renderResults({
+      matching: matchingCount,
+      onlyIn1: onlyIn1Count,
+      onlyIn2: onlyIn2Count,
+      total: total,
+      matchRate: matchRate,
+      onlyIn1Samples: onlyIn1Samples,
+      onlyIn2Samples: onlyIn2Samples,
+      f1Format: detectedF1Format,
+      f2Format: detectedF2Format
+    });
+    
+    runText.textContent = 'Run Again';
+    runBtn.disabled = false;
+    document.getElementById('resetBtn').style.display = 'inline-block';
+    document.getElementById('footerStatus').textContent = '● Done';
+    
+  } catch (err) {
+    console.error('Reconciliation error:', err);
+    addStatus('Error: ' + err.message, false, true);
+    showError(err.message);
+    runText.textContent = 'Try Again';
+    runBtn.disabled = false;
+    document.getElementById('footerStatus').textContent = '● Error';
+  }
+}
+
+function renderResults(r) {
+  const matching = r.matching, onlyIn1 = r.onlyIn1, onlyIn2 = r.onlyIn2;
+  const total = r.total, matchRate = r.matchRate;
+  const onlyIn1Samples = r.onlyIn1Samples, onlyIn2Samples = r.onlyIn2Samples;
+  const f1Format = r.f1Format, f2Format = r.f2Format;
+  
+  const heroValue = document.getElementById('heroValue');
+  heroValue.innerHTML = matchRate.toFixed(1) + '<span class="pct">%</span>';
+  
+  const heroMetric = document.getElementById('heroMetric');
+  const heroVerdict = document.getElementById('heroVerdict');
+  heroMetric.classList.remove('warning', 'error', 'success');
+  
+  if (matchRate >= 99.5) {
+    heroMetric.classList.add('success');
+    heroVerdict.innerHTML = 'Sheets are <span class="highlight">in perfect sync.</span>';
+  } else if (matchRate >= 95) {
+    heroMetric.classList.add('success');
+    heroVerdict.innerHTML = 'Sheets <span class="highlight">essentially match,</span><br>with negligible drift.';
+  } else if (matchRate >= 75) {
+    heroMetric.classList.add('warning');
+    heroVerdict.innerHTML = 'Sheets <span class="highlight">mostly align,</span><br>but some rows diverge.';
+  } else if (matchRate >= 50) {
+    heroMetric.classList.add('warning');
+    heroVerdict.innerHTML = 'Sheets <span class="highlight">partially overlap.</span><br>Significant differences found.';
+  } else {
+    heroMetric.classList.add('error');
+    heroVerdict.innerHTML = 'Sheets do <span class="highlight">not match.</span><br>Major scope or content drift.';
+  }
+  
+  document.getElementById('statMatching').textContent = formatNum(matching);
+  document.getElementById('statS1Only').textContent = formatNum(onlyIn1);
+  document.getElementById('statS2Only').textContent = formatNum(onlyIn2);
+  document.getElementById('statTotal').textContent = formatNum(total);
+  
+  const processList = document.getElementById('processList');
+  processList.innerHTML = '';
+  const steps = [
+    'Read both Excel files and detected sheet structure',
+    'Identified File 01 as <strong>' + f1Format.toUpperCase() + '</strong> format and File 02 as <strong>' + f2Format.toUpperCase() + '</strong> format',
+    'Extract student × group × exam rows (unpivoting wide sheets)',
+    'Apply mojibake fixes (Ã¡→á, Ã©→é, Ã‰→É, etc.)',
+    'Normalize accents and collapse extra whitespace',
+    'Deduplicate combos and merge on normalized keys',
+    'Compute match rate and surface mismatched rows'
+  ];
+  steps.forEach(function(s) {
+    const li = document.createElement('li');
+    li.innerHTML = '<span></span><span>' + s + '</span><span class="check">✓</span>';
+    processList.appendChild(li);
+  });
+  
+  const insightPanel = document.getElementById('insightPanel');
+  const insightText = document.getElementById('insightText');
+  
+  if (matchRate < 95 && (onlyIn1 > 0 || onlyIn2 > 0)) {
+    insightPanel.style.display = 'block';
+    
+    const ratio = onlyIn1 / Math.max(onlyIn2, 1);
+    
+    if (ratio > 0.7 && ratio < 1.3 && onlyIn1 > 50) {
+      insightText.innerHTML = 'The unmatched counts on each side are nearly equal (<code>' + formatNum(onlyIn1) + '</code> vs <code>' + formatNum(onlyIn2) + '</code>), which usually means the same students are present in both files but assigned to different groups, or have differently-spelled names. Worth checking if Sheet 1 mixes multiple programs while Sheet 2 only contains one.';
+    } else if (onlyIn1 > onlyIn2 * 2) {
+      insightText.innerHTML = 'File 01 has substantially more unique rows (<code>' + formatNum(onlyIn1) + '</code>) than File 02 (<code>' + formatNum(onlyIn2) + '</code>). File 01 likely contains a broader scope — multiple programs, more time periods, or additional records that don\'t exist in File 02.';
+    } else if (onlyIn2 > onlyIn1 * 2) {
+      insightText.innerHTML = 'File 02 has substantially more unique rows (<code>' + formatNum(onlyIn2) + '</code>) than File 01 (<code>' + formatNum(onlyIn1) + '</code>). File 02 likely contains a broader scope or includes records that File 01 omits.';
+    } else {
+      insightText.innerHTML = 'The non-matching rows are likely due to sparse test data — not every student took every exam — or genuinely different student/group enrollments between the two sources.';
+    }
+  } else {
+    insightPanel.style.display = 'none';
+  }
+  
+  const mismatchSection = document.getElementById('mismatchSection');
+  if (onlyIn1 > 0 || onlyIn2 > 0) {
+    mismatchSection.classList.remove('hidden');
+    
+    const s1Container = document.getElementById('s1OnlySamples');
+    const s2Container = document.getElementById('s2OnlySamples');
+    
+    s1Container.innerHTML = onlyIn1Samples.length > 0 
+      ? onlyIn1Samples.map(function(r) {
+          return '<div class="row"><span class="name">' + escapeHtml(r.student) + '</span><span class="meta">' + escapeHtml(r.group) + ' · ' + escapeHtml(r.exam) + '</span></div>';
+        }).join('')
+      : '<div class="row"><span class="meta">— samples not captured —</span></div>';
+    
+    s2Container.innerHTML = onlyIn2Samples.length > 0
+      ? onlyIn2Samples.map(function(r) {
+          return '<div class="row"><span class="name">' + escapeHtml(r.student) + '</span><span class="meta">' + escapeHtml(r.group) + ' · ' + escapeHtml(r.exam) + '</span></div>';
+        }).join('')
+      : '<div class="row"><span class="meta">— samples not captured —</span></div>';
+  } else {
+    mismatchSection.classList.add('hidden');
+  }
+  
+  document.getElementById('results').classList.add('active');
+}
+
+document.getElementById('runBtn').addEventListener('click', runReconciliation);
+
+document.getElementById('resetBtn').addEventListener('click', function() {
+  file1Buffer = null;
+  file2Buffer = null;
+  file1Name = '';
+  file2Name = '';
+  document.getElementById('zone1').classList.remove('has-file');
+  document.getElementById('zone2').classList.remove('has-file');
+  document.getElementById('file1').value = '';
+  document.getElementById('file2').value = '';
+  document.getElementById('statusPanel').classList.remove('active');
+  document.getElementById('results').classList.remove('active');
+  document.getElementById('errorBanner').classList.remove('active');
+  document.getElementById('runBtn').disabled = true;
+  document.getElementById('runText').textContent = 'Run Reconciliation';
+  document.getElementById('resetBtn').style.display = 'none';
+  document.getElementById('footerStatus').textContent = '● Ready';
+});
+
+window.addEventListener('error', function(e) {
+  console.error('Unhandled error:', e);
+  showError('Unexpected error: ' + e.message);
+});
+
+window.addEventListener('unhandledrejection', function(e) {
+  console.error('Unhandled rejection:', e);
+  showError('Unexpected error: ' + (e.reason && e.reason.message || e.reason));
+});
+
+</script>
+</body>
+</html>
